@@ -106,6 +106,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\fedag\Desktop\kursovaya\project_login\kursovaya_login\kursovaya_login\libs\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,18 +130,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Account.cpp" />
-    <ClCompile Include="Funkcii.cpp" />
+    <ClCompile Include="Funkcii\Account.cpp" />
+    <ClCompile Include="Funkcii\Funkcii.cpp" />
+    <ClCompile Include="Funkcii\sha256.cpp" />
+    <ClCompile Include="IndividualZadanie\Individual.cpp" />
+    <ClCompile Include="IndividualZadanie\IndividualClass.cpp" />
     <ClCompile Include="kursovaya_main.cpp" />
-    <ClCompile Include="ModulAdministrator.cpp" />
-    <ClCompile Include="sha256.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Funkcii.h" />
-    <ClInclude Include="sha256.h" />
+    <ClCompile Include="Moduli\Administrator\ModulAdministrator.cpp" />
+    <ClCompile Include="Moduli\Polzovatel\PolzovatelModul.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="database.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Funkcii\Funkcii.h" />
+    <ClInclude Include="Funkcii\sha256.h" />
+    <ClInclude Include="IndividualZadanie\Individual.h" />
+    <ClInclude Include="Moduli\Administrator\ModulAdministrator.h" />
+    <ClInclude Include="Moduli\Polzovatel\PolzovatelModul.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

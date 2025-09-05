@@ -14,10 +14,14 @@
 #include <conio.h>
 
 #include <nlohmann/json.hpp>
-bool checkLogin(std::string v_login, std::string v_password);
-void newRegistration(std::string login, std::string password,int new_role);
-int checkIfInDB(std::string login, std::vector<Account>vectorAccounts);
+
+
+int checkLogin(std::string v_login, std::string v_password, std::vector<Account> &vectorAccounts);
+int checkIfInDB(std::string login, std::vector<Account>&vectorAccounts);
 std::string vvodParol();
 void isThereBD();
-bool loginInAccount();
-void zapisAccount(std::string login, std::string password, int role);
+std::vector<Account> getAccounts();
+bool zapisAccount(std::string login, std::string password, int role, std::vector<Account>&vectorAccounts, bool isChange);
+int loginInAccount(std::vector<Account> &vectorAccounts);
+std::vector<Account> inputNewAccountData(bool isAdministrator);
+std::string saultGen();

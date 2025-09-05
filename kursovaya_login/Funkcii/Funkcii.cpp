@@ -7,24 +7,30 @@
 
 std::string saultGen();
 void isThereBD();
-bool checkLogin(std::string v_login, std::string v_password);
+int checkLogin(std::string v_login, std::string v_password, std::vector<Account> &vectorAccounts);
 std::vector<Account> getAccounts();
-void zapisAccount(std::string login, std::string password, int role, std::vector<Account>vectorAccounts);
+bool zapisAccount(std::string login, std::string password, int role, std::vector<Account> &vectorAccounts, bool isChange);
 
 
 //функция начала регистрации(ввод данных с клавиатуры и вызов функции добавления в файл)
-void inputNewAccountData(bool isEmptyFile) {
+std::vector<Account> inputNewAccountData(bool isAdministrator) {
 	std::vector<Account>vectorAccounts;
-	if (!isEmptyFile) {
-		 vectorAccounts = getAccounts();
-	}
 	std::string new_login, new_password;
-	//std::cout << "База данных отсутствует, создали новую\n";
+	int new_role=1;
+	
 	std::cout << "Введите логин нового человека\n";
 	std::cin >> new_login;
 	std::cout << "\nВведите пароль нового человека\n";
 	std::cin >> new_password;
-	zapisAccount(new_login, new_password, 1,vectorAccounts);
+	if (!isAdministrator) {
+		std::cout << "\nВведите роль нового человека\n";
+		std::cin >> new_role;
+		vectorAccounts = getAccounts();
+	}
+	if (zapisAccount(new_login, new_password, new_role, vectorAccounts, false)) {
+		std::cout << "Успешно добавил нового человека\n";
+	}
+	return vectorAccounts;
 }
 
 
@@ -32,11 +38,9 @@ void inputNewAccountData(bool isEmptyFile) {
 
 //функция генерации соли
 std::string saultGen() {
-
 	std::string sault = "";
 	int kolvoBukv = 10;
 	for (int i = 0; i < kolvoBukv; i++) {
-
 		if (rand() % 2 == 1) {
 			sault += rand() % 26 + 'a';
 		}
@@ -66,7 +70,6 @@ std::string vvodParol() {
 		}
 		if (ch == 8)
 		{
-
 			if (!pass.empty())
 				pass.erase(pass.length() - 1);
 		}
@@ -82,7 +85,7 @@ std::string vvodParol() {
 
 
 //функция чтения txt файла аккаунтов и сверки логинов и паролей
-bool checkLogin(std::string v_login, std::string v_password, std::vector<Account> vectorAccounts) {
+int checkLogin(std::string v_login, std::string v_password, std::vector<Account> &vectorAccounts) {
 
 	SHA256 sha256;
 	
@@ -91,54 +94,61 @@ bool checkLogin(std::string v_login, std::string v_password, std::vector<Account
 		std::string hashed_pass;
 		hashed_pass = sha256(v_password + vectorAccounts[accountIndex].sault);
 		if (hashed_pass == vectorAccounts[accountIndex].password) {
-			return true;
+			return accountIndex;
 		}
 	}
-	return false;
+	return -1;
 }
 
 
 //функция входа в аккант
-bool loginInAccount() {
+int loginInAccount(std::vector<Account> &vectorAccounts) {
 	bool isLogin = false;
-	int role = 0;
 	std::string login, password;
-	std::vector<Account> vectorAccounts = getAccounts();
+	int role = 0, accountIndex = -1;
+	
+	
 	std::cout << "Введите логин" << std::endl;
 	std::cin >> login;
 	std::cout << std::endl << "Введите пароль" << std::endl;
 	password = vvodParol();
 	std::cout << std::endl;
-	if (checkLogin(login, password,vectorAccounts)) {
+	accountIndex= checkLogin(login, password, vectorAccounts);
+	if (accountIndex!=-1) {
 		std::cout << "Вошёл успешно!" << std::endl;
-		return true;
+		return accountIndex;
 	}
 	else {
 		std::cout << "Не удалось войти" << std::endl;
-		return false;
+		return -1;
 	}
 }
 
 
 //функция записи аккаунта в файл
-void zapisAccount(std::string login, std::string password, int role,std::vector<Account>vectorAccounts) {
-	std::string new_sault = saultGen();
-	SHA256 sha256;
-	Account account(login, sha256(password+new_sault),new_sault, role);
+bool zapisAccount(std::string login, std::string password, int role,std::vector<Account>&vectorAccounts,bool isChange) {
 	
-	vectorAccounts.push_back(account);
+	
+		
+	if (!isChange) {
+		std::string new_sault = saultGen();
+		SHA256 sha256;
+		Account account(login, sha256(password + new_sault), new_sault, role);
+		vectorAccounts.push_back(account);
+	}
+	
 
 	nlohmann::json j{};
 	j["userList"] = vectorAccounts;
-
+	
 	std::ofstream out;
-	out.open("database.json", std::ios::app);
+	out.open("database.json");
 	if (out.is_open())
 	{
-		out << j << std::endl;;
-		std::cout << "Успешно добавил нового пользователя\n\n";
+		out << j.dump(4) << std::endl;
 	}
 	out.close();
+	return true;
 }
 
 
@@ -157,8 +167,8 @@ std::vector<Account> getAccounts() {
 	catch(...){
 		in.close();
 		std::cout << "Ошибка, файл пустой!\n";
-		inputNewAccountData(true);
-		vectorAccounts = getAccounts();
+		vectorAccounts = inputNewAccountData(true);
+		//vectorAccounts = getAccounts();
 		return vectorAccounts;
 	}
 	return vectorAccounts;
@@ -196,7 +206,7 @@ void isThereBD() {
 
 
 //функция проверки, есть ли такой аккаунт в базе данных (при регистрации). Если есть - возвращаю номер в векторе, иначе -1
-int checkIfInDB(std::string login,std::vector<Account>vectorAccounts) {
+int checkIfInDB(std::string login,std::vector<Account>&vectorAccounts) {
 	std::string chel_log;
 	std::transform(login.begin(), login.end(), login.begin(), ::tolower); //превращаю логин в ловеркейс
 	for (int i = 0; i < vectorAccounts.size(); i++) {

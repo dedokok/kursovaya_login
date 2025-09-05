@@ -1,1 +1,22 @@
-{"userList":[{"login":"pidor","password":"60b5295dd0be60afc13b45b0e7a6d2d5023b28f19fcc102e74016a77718540fd","role":1,"sault":"gvwkZAXGhW"}]}
+{
+    "userList": [
+        {
+            "login": "dedokok",
+            "password": "f06b8335203d8fea031c14f16ac8a4b31c32b1f0f3297309fc246f13acbc2dd0",
+            "role": 1,
+            "sault": "tzYHblBfEP"
+        },
+        {
+            "login": "obamka",
+            "password": "92ae2176d8a077f4558df7a9c6a37c0d615099b60f51de491c099c88903bf79a",
+            "role": 0,
+            "sault": "WJHKKeiyAN"
+        },
+        {
+            "login": "roman",
+            "password": "f9ead0ea38cbccda93071e903eed3906aeee3cabd60af1a514366dfd47d397c4",
+            "role": 0,
+            "sault": "MagZLcmvKh"
+        }
+    ]
+}
