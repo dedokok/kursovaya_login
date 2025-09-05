@@ -7,12 +7,10 @@
 #include <clocale>
 int main()
 {
-    //system("chcp 1251>nul");
-    //setlocale(LC_ALL, "Rus");
+
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    //SetConsoleCP(__in UINT wCodePageID);
-    //setlocale(LC_ALL, ".866");
+
     std::locale::global(std::locale(""));
     srand(static_cast<unsigned int>(time(0)));
     std::string login, password;

@@ -65,4 +65,8 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ticketList.json" />
+    <None Include="database.json" />
+  </ItemGroup>
 </Project>
