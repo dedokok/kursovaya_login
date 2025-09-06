@@ -22,10 +22,10 @@ int main()
             role = vectorAccounts[accountIndex].role;
             int vibor;
             if (role == 0) {
-                startPolzovatel();
+                if (startPolzovatel() == 1)return 1;
             }
             else if (role == 1) {
-                startAdministrator(vectorAccounts,accountIndex);
+                if(startAdministrator(vectorAccounts,accountIndex)==1)return 1;
             }
             
         }
@@ -33,6 +33,6 @@ int main()
             accountIndex = loginInAccount(vectorAccounts);
         }
     }
-    
+    return 1;
 }
 

@@ -4,13 +4,32 @@
 
 
 //запуск меню пользователя
-void startPolzovatel() {
+int startPolzovatel() {
 	int vibor;
-	bool isRunAdm = true;
-	while (isRunAdm) {
-		std::cout << "Выберите пункт меню:\n";
+	std::vector<Ticket> ticketList = getTickets();
+	while (true) {
+		std::cout << "Выберите пункт меню:\n1.Просмотр\n2.Покупка билета (инд. задание)\n3.Поиск\n4.Сортировка\n0.Выход\n";
 		std::cin >> vibor;
 		switch (vibor) {
+		case 0: return 1;
+		case 1: {
+			printShapka();
+			printTickets(ticketList, 0, -1);
+			break;
+		}
+		case 2: {
+			buyTicket(ticketList);
+			break;
+		}
+		case 3: {
+			poiskTicket(ticketList);
+			break;
+		}
+		case 4: {
+			sortTicket(ticketList);
+			break;
+		}
 		}
 	}
+	return 0;
 }

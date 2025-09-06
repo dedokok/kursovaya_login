@@ -11,6 +11,6 @@
 
 //для звёздочек в консоли
 #include <conio.h>
-
+#include "../../IndividualZadanie/Individual.h";
 #include <nlohmann/json.hpp>
-void startAdministrator(std::vector<Account> &vectorAccounts,int accountIndex);
+int startAdministrator(std::vector<Account> &vectorAccounts,int accountIndex);

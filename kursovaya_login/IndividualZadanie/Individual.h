@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <cstdio>
+#include <algorithm>
 #include <windows.h>
 #include <limits>
 #include <vector>
@@ -15,6 +16,15 @@
 
 //для звёздочек в консоли
 #include <conio.h>
-
 #include <nlohmann/json.hpp>
-void editMode();
+
+void printMessage(int messageCode);
+std::vector<Ticket> getTickets();
+bool addZapis(std::vector<Ticket>& ticketList);
+bool editZapis(std::vector<Ticket>& ticketList);
+bool deleteZapis(std::vector<Ticket>& ticketList);
+int buyTicket(std::vector<Ticket>& ticketList);
+void poiskTicket(std::vector<Ticket>& ticketList);
+void sortTicket(std::vector<Ticket> ticketList);
+void printShapka();
+void printTickets(std::vector<Ticket>& ticketList, int startI, int kolvoPrint);

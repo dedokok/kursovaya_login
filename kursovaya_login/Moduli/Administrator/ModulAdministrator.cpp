@@ -16,12 +16,13 @@ void printUserList(std::vector<Account> &vectorAccounts) {
 //функция вызова функции изменения учётной записи
 void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 	int vibor;
-	std::cout << "Что хотите сделать с аккаунтом?\n1. Изменить пароль\n2. Изменить логин\n3. Изменить роль\n4. Изменить соль\n";
+	std::cout << "Что хотите сделать с аккаунтом?\n1. Изменить пароль\n2. Изменить логин\n3. Изменить роль\n4. Изменить соль\n0.Назад\n";
 	std::cin >> vibor;
 	std::string new_data;
 	std::cout << "Введите новые данные:\n";
 	switch (vibor) {
 	case -1:break;
+	case 0: return;
 	case 1: {
 		std::cin >> new_data;
 		SHA256 sha256;
@@ -88,6 +89,7 @@ void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) 
 		std::cout << "Выберите пункт меню:\n1.Просмотр всех учётных записей\n2. Добавление учётной записи\n3. Редактирование учётной записи\n4.Удаление учётной записи\n0.Назад\n";
 		std::cin >> vibor;
 		switch (vibor) {
+		case 0: return;
 		case 1:
 		{
 			printUserList(vectorAccounts);
@@ -113,26 +115,103 @@ void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) 
 
 
 
+void processMode() {
+	int vibor;
+	std::vector<Ticket> ticketList = getTickets();
+	bool isRunPM = true;
+	while (isRunPM) {
+		std::cout << "Выберите один из вариантов:\n1.Покупка билета (инд.задание)\n2.Поиск\n3.Сортировка\n0.Назад\n";
+		std::cin >> vibor;
+		switch (vibor) {
+		case 0: return;
+		case 1: {
+			buyTicket(ticketList);
+			break;
+		}
+		case 2: {
+			poiskTicket(ticketList);
+			break;
+		}
+		case 3: {
+			sortTicket(ticketList);
+			break;
+		}
+		}
+	}
+}
+
+
+//основная функция режима редактирования в "Работа с данными"
+void editMode() {
+	int vibor;
+	std::vector<Ticket> ticketList = getTickets();
+	bool isRunEM = true;
+	while (isRunEM) {
+		std::cout << "Выберите один из вариантов:\n1.Просмотр\n2.Добавление\n3.Редактирование\n4.Удаление\n0.Назад\n";
+		std::cin >> vibor;
+		switch (vibor) {
+		case 0: return;
+		case 1: {
+			printShapka();
+			printTickets(ticketList, 0, -1);
+			break;
+		}
+		case 2: {
+			addZapis(ticketList) == true ? printMessage(6) : printMessage(1);
+			break;
+		}
+		case 3: {
+			editZapis(ticketList) == true ? printMessage(7) : printMessage(1);
+			break;
+		}
+		case 4: {
+			deleteZapis(ticketList) == true ? printMessage(5) : printMessage(1);
+			break;
+		}
+		}
+	}
+}
+
+void chooseMode() {
+	int viborMode = 0;
+	std::cout << "Выберите режим:\n1.Режим редактирования\n2.Режим обработки\n0.Назад\n";
+	std::cin >> viborMode;
+	switch (viborMode) {
+	case 0: return;
+	case 1: {
+		editMode();
+		break;
+	}
+	case 2: {
+		processMode();
+		break;
+	}
+	}
+}
+
+
+
 
 
 //запуск меню администратора
-void startAdministrator(std::vector<Account> &vectorAccounts, int accountIndex) {
+int startAdministrator(std::vector<Account> &vectorAccounts, int accountIndex) {
 	int vibor;
-	bool isRunAdm = true;
-	while (isRunAdm) {
-		std::cout << "Выберите пункт меню:\n1.Работа с учётными записями\n2.Работа с данными\n";
+	while (true) {
+		std::cout << "Выберите пункт меню:\n1.Работа с учётными записями\n2.Работа с данными\n0.Выход\n";
 		std::cin >> vibor;
 		switch (vibor) {
+		case 0:return 1;
 		case 1:
 		{
 			rabotaWithAccounts(vectorAccounts, accountIndex);
 			break;
 		}
 		case 2: {
-			editMode();
+			chooseMode();
 			break;
 		}
 			
 		}
 	}
+	return 0;
 }

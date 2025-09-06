@@ -11,6 +11,6 @@
 
 //для звёздочек в консоли
 #include <conio.h>
-
+#include "../../IndividualZadanie/Individual.h";
 #include <nlohmann/json.hpp>
-void startPolzovatel();
+int startPolzovatel();
