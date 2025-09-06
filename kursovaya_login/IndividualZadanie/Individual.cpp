@@ -1,53 +1,30 @@
 #include "Individual.h"
-
+//все вводы сделать через inputInt и inputStr
 
 void printTickets(std::vector<Ticket> &ticketList) {
 	 //     | 0 | AirBus111 | Moscow | 18.02.2008 | 18:00 | 20 : 00 | 100 | 10 | 1000 | 40 | 500 |
-	printf("------------------------------------------------------------------------------------\n");
-	printf("| № |    Тип    |  Куда  |    День    | Время | Время | Вмес| Кол| Ст.  | Кол.| Ст.|\n");
-	printf("| № | самолёта  |  летит |   вылета   | вылета|прибыт.| тим.| биз| Биз. | эк. | эк.|\n");
-	printf("------------------------------------------------------------------------------------\n");
+	printf("-------------------------------------------------------------------------------------------------------\n");
+	printf("|  №  |       Тип       |       Куда      |    День    | Время | Время | Вмес| Кол | Ст.  | Кол.| Ст. |\n");
+	printf("|  №  |    самолёта     |       летит     |   вылета   | вылета|прибыт.| тим.| биз | Биз. | эк. | эк. |\n");
+	printf("-------------------------------------------------------------------------------------------------------\n");
 	for (int i = 0; i < ticketList.size(); i++) {
 		Ticket t = ticketList[i];
-		printf("| %i | %s | %s | %s | %s | %s | %i | %i | %i | %i | %i |\n",
-			t.raceNumber, 
-			t.samoletType.c_str(),
-			t.punktNaznacheniya.c_str(),
-			t.dateVilet.c_str(),
-			t.vremyaVilet.c_str(),
-			t.vremyaPrilet.c_str(),
-			t.vmestimost, 
-			t.kolvoTicketBiznes,
-			t.stoimostBiznes, 
-			t.kolvoTicketEkonom, 
-			t.stoimostEkonom);
-		printf("------------------------------------------------------------------------------------\n");
+		std::cout <<
+			"| "  << std::setw(3) << t.raceNumber <<
+			" | " << std::left << std::setw(15) << t.samoletType <<
+			" | " << std::left << std::setw(15) << t.punktNaznacheniya <<
+			" | " << t.dateVilet <<
+			" | " << t.vremyaVilet <<
+			" | " << t.vremyaPrilet <<
+			" | " << std::setw(3) << t.vmestimost <<
+			" | " << std::setw(3) << t.kolvoTicketBiznes <<
+			" | " << std::setw(4) << t.stoimostBiznes <<
+			" | " << std::setw(3) << t.kolvoTicketEkonom <<
+			" | " << std::setw(4) << t.stoimostEkonom <<
+			"|"  << std::endl;
+		printf("-------------------------------------------------------------------------------------------------------\n");
 	}
 
-}
-
-int getMaxWidth(std::vector<Ticket>& ticketList, int setType) {
-	int maxWidth = 0;
-	for (int g = 0; g < 11; g++) {
-		for (int i = 0; i < ticketList.size(); i++) {
-			if (ticketList[i].punktNaznacheniya.length() > maxWidth) {
-				maxWidth = ticketList[i].punktNaznacheniya.length();
-			}
-		}
-	}
-	return maxWidth;
-}
-
-void setMaxWidth(std::vector<Ticket>& ticketList) {
-	int maxWidth = getMaxWidth(ticketList, 1);
-	for (int i = 0; i < ticketList.size(); i++) {
-		if (ticketList[i].punktNaznacheniya.length() < maxWidth) {
-			int raznica = maxWidth - ticketList[i].punktNaznacheniya.length();
-			for (int j = 0; j < raznica; j++) {
-				ticketList[i].punktNaznacheniya += " ";
-			}
-		}
-	}
 }
 
 
@@ -60,6 +37,7 @@ int getTicketRace() {
 	return ticketRace;
 }
 
+//функция получения индекса рейса в векторе по его номеру(рейса)
 int getRaceIndex(std::vector<Ticket>& ticketList, int ticketRace) {
 	for (int i = 0; i < ticketList.size(); i++) {
 		if (ticketList[i].raceNumber == ticketRace) {
@@ -67,6 +45,18 @@ int getRaceIndex(std::vector<Ticket>& ticketList, int ticketRace) {
 		}
 	}
 	return -1;
+}
+
+//функция вывода ошибок
+void printError(int errorCode) {
+	std::string error = "Ошибка";
+	switch (errorCode) {
+	case 1: { error = "Ошибка ввода\n"; break; }
+	case 2: { error = "Ошибка вывода\n"; break; }
+	case 3: { error = "Слишком много!\n"; break; }
+	case 4: { error = "Такой рейс уже есть\n"; break; }
+	}
+	std::cout << error;
 }
 
 
@@ -94,12 +84,11 @@ int buyTicket(std::vector<Ticket>& ticketList) {
 	int kolvoTicket = 0, classType_int, maxTicket=0;
 	std::string classType_str;
 	if (indexRace == -1) {
-		std::cout << "Ошибка\n";
+		printError(-1);
 		return -1;
 	}
 	getTicketKolvoType(ticketList, indexRace, kolvoTicket, classType_int, maxTicket);
-	
-	
+
 	if (kolvoTicket <= maxTicket) {
 		if (classType_int) {
 			ticketList[indexRace].kolvoTicketBiznes-=kolvoTicket;
@@ -111,11 +100,10 @@ int buyTicket(std::vector<Ticket>& ticketList) {
 		}
 	}
 	else {
-		std::cout << "Слишком много!";
+		printError(3);
 	}
 	
 	return -1;
-
 }
 
 
@@ -136,6 +124,7 @@ bool zapisTickets(std::vector<Ticket>& ticketList) {
 }
 
 
+//функция записи джсона в вектор
 std::vector<Ticket> getTickets() {
 	std::ifstream in;
 	in.open("ticketList.json");
@@ -155,38 +144,110 @@ std::vector<Ticket> getTickets() {
 }
 
 
-//void normalShirina(std::vector<Ticket>& ticketList) {
-//	for (int i = 0; i < 11; i++) {
-//		int maxLength = 0;
-//		for (int j = 0; j < ticketList.size(); j++) {
-//			if(ticketList[i].leng)
-//		}
-//	}
-//}
+//функция проверки, если ли уже такой рейс
+bool checkRace(int ticketRaceNumber, std::vector<Ticket>& ticketList) {
+	for (int i = 0; i < ticketList.size(); i++) {
+		if (ticketList[i].raceNumber == ticketRaceNumber) {
+			printError(4);
+			return 0;
+		}
+	}
+	return 1;
+	
+}
+
+//функция ввода числовых значений Ticket (чтобы избежать ошибок если ввели букву)
+bool inputInt(int &ticketField,std::string prompt) {
+	std::cout << prompt << std::endl;
+	std::cin >> prompt;
+	try {
+		ticketField= std::stoi(prompt);
+	}
+	catch (...) {
+		printError(1);
+		return 0;
+	}
+}
+
+//функция ввода строкового поля Ticket
+void inputTicketStr(std::string& ticketField, std::string prompt) {
+	std::cout << prompt << std::endl;
+	std::cin >> ticketField;
+}
+
+//функция ввода значений новой записи. Switch, потому что при вызове из editZapis нужно изменить только 1 поле, а не сразу все
+bool inputZapis(Ticket &ticket, std::vector<Ticket>& ticketList, int viborEdit) {
+	std::string string_input;
+	int int_input;
+	bool isRunInputZapis = true;
+	switch (viborEdit) {
+	case 1: {
+		if (!inputInt(ticket.raceNumber, "Введите номер рейса")) {
+			return 0;
+		}
+		else if (!checkRace(ticket.raceNumber, ticketList)) {
+			return 0;
+		}
+		break;
+	}
+	case 2:  {inputTicketStr(ticket.samoletType, "Введите тип самолёта"); break;}
+	case 3:  {inputTicketStr(ticket.punktNaznacheniya, "Введите пункт назначения (латиницей)"); break;}
+	case 4:  {inputTicketStr(ticket.dateVilet, "Введите день вылета"); break;}
+	case 5:  {inputTicketStr(ticket.vremyaVilet, "Введите время вылета"); break;}
+	case 6:  {inputTicketStr(ticket.vremyaPrilet, "Введите время прилёта"); break;}
+	case 7:  {if (!inputInt(ticket.vmestimost, "Введите вместимость самолёта")) { return 0; } break;}
+	case 8:  {if (!inputInt(ticket.kolvoTicketBiznes, "Введите количество билетов бизнес класса")) { return 0; } break;}
+	case 9:  {if (!inputInt(ticket.stoimostBiznes, "Введите стоимость билета бизнес класса")) { return 0; } break;}
+	case 10: {if (!inputInt(ticket.kolvoTicketEkonom, "Введите количество билетов эконом класса")) { return 0; } break;}
+	case 11: {if (!inputInt(ticket.stoimostEkonom, "Введите стоимость билета эконом класса")) { return 0; } break;}}
+
+	return 1;
+}
 
 
+//функция добавления новой записи
+int addZapis(std::vector<Ticket> &ticketList) {
+
+	Ticket ticket;
+	for (int i = 1; i < 12; i++) {
+		if (!inputZapis(ticket, ticketList,i)) {
+			return 0;
+		}
+	}
+	ticketList.push_back(ticket);
+	zapisTickets(ticketList);
+	return 1;
+}
+
+
+//функция редактирования
+bool editZapis(std::vector<Ticket>& ticketList) {
+	int ticketRace = getTicketRace();
+	int indexRaceInVector = getRaceIndex(ticketList, ticketRace);
+	if (indexRaceInVector != -1) {
+		Ticket ticket=ticketList[indexRaceInVector]; 
+		
+			std::string string_input;
+			int int_input;
+			bool isRunInputZapis = true;
+			
+
+			
+			ticketList[indexRaceInVector] = ticket;
+			zapisTickets(ticketList);
+			return 1;
+		
+	}
+	return 0;
+}
+
+
+
+//основная функция режима редактирования в "Работа с данными"
 void editMode() {
 	int vibor;
 	std::vector<Ticket> ticketList = getTickets();
-	setMaxWidth(ticketList);
-	//std::vector<Ticket> ticketList;
-	//Ticket t;
-	//t.raceNumber = 0;
-	//t.samoletType = "AirBus111";
-	//t.punktNaznacheniya = "Moscow";
-	//t.dateVilet = "18.02.2008";
-	//t.vremyaVilet = "18:00";
-	//t.vremyaPrilet = "20:00";
-	//t.vmestimost = 100;
-	//t.kolvoTicketBiznes = 10;
-	//t.stoimostBiznes = 1000;
-	//t.kolvoTicketEkonom = 40;
-	//t.stoimostEkonom = 500;
-	//for (int i = 0; i < 30; i++) {
-		//ticketList.push_back(t);
-	//}
-	//zapisTickets(ticketList);
-	
+
 	bool isRunEM = true;
 	while (isRunEM) {
 
@@ -198,12 +259,18 @@ void editMode() {
 			break;
 		}
 		case 2: {
-			//if (buyTicket(ticketList) == 1) {
-			//	zapisTickets(ticketList);
-			//}
-			//break;
+			addZapis(ticketList);
+			break;
+		}
+		case 3: {
+			editZapis(ticketList);
+			break;
 		}
 
 		}
 	}
 }
+//if (buyTicket(ticketList) == 1) {
+			//	zapisTickets(ticketList);
+			//}
+			//break;
