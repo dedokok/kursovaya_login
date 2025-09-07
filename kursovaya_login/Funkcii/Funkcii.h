@@ -19,6 +19,7 @@
 
 bool zapisAccount(std::string login, std::string password, int role, std::vector<Account>& vectorAccounts, bool isChange);
 bool inputIntSsilka(int& ticketField, std::string prompt);
+bool getAccept();
 
 int checkLogin(std::string v_login, std::string v_password, std::vector<Account> &vectorAccounts);
 int checkIfInDB(std::string login, std::vector<Account>&vectorAccounts);

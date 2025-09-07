@@ -51,6 +51,17 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 }
 
 
+//подтверждение действия
+bool getAccept() {
+	std::string accept;
+	std::cout << "Вы действительно хотите это сделать? (Y/n)\n";
+	std::cin >> accept;
+	if (accept == "Y") { return 1; }
+	else if (accept == "n") { std::cout << "Успешная отмена действия\n"; return 0; }
+	else { printMessage(1); return 0; }
+}
+
+
 //функция ввода индекса аккаунта
 int printAccIndex() {
 	int indexAccount;
@@ -66,7 +77,7 @@ void deleteAccount(std::vector<Account> &vectorAccounts,int indexDeleteAccount, 
 		auto begin = vectorAccounts.cbegin();
 		auto end = vectorAccounts.cend();
 		vectorAccounts.erase(begin + indexDeleteAccount);
-		if (zapisAccount("-", "-", -1, vectorAccounts, true)) {
+		if (getAccept() && zapisAccount("-", "-", -1, vectorAccounts, true)) {
 			std::cout << "\nУспешно удалил\n\n";
 		}
 	}
@@ -105,6 +116,7 @@ void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) 
 		}
 		case 4:
 		{
+
 			deleteAccount(vectorAccounts, printAccIndex(), accountIndex);
 		}
 		}

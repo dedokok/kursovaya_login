@@ -1,6 +1,10 @@
 #pragma once
 #include "IndividualClass.cpp"
 #include "../Funkcii/Funkcii.h"
+#include <ctime>
+#include <chrono>
+#include <sstream>
+#include <iomanip>
 
 std::vector<Ticket> getTickets();
 

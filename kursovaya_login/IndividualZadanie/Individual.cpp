@@ -32,6 +32,37 @@ void printTickets(std::vector<Ticket> &ticketList, int startI, int kolvoPrint) {
 }
 
 
+bool isTrueFormatVremya(std::string vremya) {
+	std::tm tm = {};
+	std::stringstream ss(vremya);
+
+	ss >> std::get_time(&tm, "%H:%M");
+
+	if (ss.fail()) {
+		std::cout << "Неверный формат времени" << std::endl;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
+bool isTrueFormatDate(std::string date) {
+	std::tm tm = {};
+	std::stringstream ss(date);
+
+	ss >> std::get_time(&tm, "%d.%m.%Y");
+
+	if (ss.fail()) {
+		std::cout << "Неверный формат даты" << std::endl;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
+
 //функция ввода номера рейса для покупки билета
 int getTicketRace() {
 	int ticketRace;
@@ -160,7 +191,8 @@ bool addZapis(std::vector<Ticket> &ticketList) {
 			return 0;
 		}
 	}
-	if (checkDlina(ticket)) {
+	if (checkDlina(ticket)&& isTrueFormatVremya(ticket.vremyaPrilet) 
+		&& isTrueFormatVremya(ticket.vremyaVilet)&&isTrueFormatDate(ticket.dateVilet)) {
 		ticketList.push_back(ticket);
 		zapisTickets(ticketList);
 	}
@@ -210,8 +242,10 @@ bool deleteZapis(std::vector<Ticket>& ticketList) {
 	int indexRaceInVector = getRaceIndex(ticketList, ticketRace);
 	auto begin = ticketList.cbegin();
 	try {
-		ticketList.erase(begin + indexRaceInVector);
-		return 1;
+		if (getAccept()) {
+			ticketList.erase(begin + indexRaceInVector);
+			return 1;
+		}
 	}
 	catch (...) { return 0; }
 	return 0;
