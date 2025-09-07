@@ -1,6 +1,6 @@
 #include<iostream>
 #include <nlohmann/json.hpp>
-//#include "../libs/json/include/nlohmann/json.hpp"
+
 
 class Ticket {
 public:
@@ -26,5 +26,4 @@ public:
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Ticket, raceNumber, samoletType, punktNaznacheniya, dateVilet, vremyaVilet,
 		vremyaPrilet, vmestimost, kolvoTicketBiznes, stoimostBiznes, kolvoTicketEkonom,
 		stoimostEkonom); //чтобы можно было преобразовать json строки в объекты типа класса
-
 };

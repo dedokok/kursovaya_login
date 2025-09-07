@@ -1,17 +1,17 @@
 {
     "ticketList": [
         {
-            "dateVilet": "18.02.2008",
+            "dateVilet": "18",
             "kolvoTicketBiznes": 8,
-            "kolvoTicketEkonom": 35,
-            "punktNaznacheniya": "Moscow",
+            "kolvoTicketEkonom": 25,
+            "punktNaznacheniya": "Mos",
             "raceNumber": 10,
-            "samoletType": "AirBus A320",
-            "stoimostBiznes": 1200,
-            "stoimostEkonom": 550,
+            "samoletType": "Air",
+            "stoimostBiznes": 12,
+            "stoimostEkonom": 55,
             "vmestimost": 1,
-            "vremyaPrilet": "20:00",
-            "vremyaVilet": "18:00"
+            "vremyaPrilet": "20",
+            "vremyaVilet": "1"
         },
         {
             "dateVilet": "18.02.2008",

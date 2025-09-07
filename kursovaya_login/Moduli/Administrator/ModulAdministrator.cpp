@@ -1,27 +1,14 @@
-
 #include "ModulAdministrator.h";
 #include "../../IndividualZadanie/Individual.h";
-
-//функиця вывода всех пользователей
-void printUserList(std::vector<Account> &vectorAccounts) {
-	for (int i = 0; i < vectorAccounts.size(); i++) {
-		std::cout << i << ". " << vectorAccounts[i].login << " " << vectorAccounts[i].role << std::endl;
-	 }
-	std::cout << std::endl;
-}
-
-
 
 
 //функция вызова функции изменения учётной записи
 void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
-	int vibor;
-	std::cout << "Что хотите сделать с аккаунтом?\n1. Изменить пароль\n2. Изменить логин\n3. Изменить роль\n4. Изменить соль\n0.Назад\n";
-	std::cin >> vibor;
+	int vibor = inputInt("Что хотите сделать с аккаунтом?\n1. Изменить пароль\n2. Изменить логин\n3. Изменить роль\n4. Изменить соль\n0.Назад");
+	if (vibor == -1)return;
 	std::string new_data;
 	std::cout << "Введите новые данные:\n";
 	switch (vibor) {
-	case -1:break;
 	case 0: return;
 	case 1: {
 		std::cin >> new_data;
@@ -30,13 +17,22 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 		break;
 	}
 	case 2: {
-		std::cin >> new_data;
-		vectorAccounts[indexAccount].login = new_data;
+		new_data = inputStr("Введите логин");
+		if (checkIfInDB(new_data, vectorAccounts) == -1) {
+			if (new_data.length() > 16) {
+				printMessage(10);
+				return;
+			}
+			vectorAccounts[indexAccount].login = new_data;
+		}
+		else {
+			std::cout << "Такой аккаунт уже есть!\n";
+			return;
+		}
 		break;
 	}
 	case 3: {
-		int new_role;
-		std::cin >> new_role;
+		int new_role = inputInt("Введите роль");
 		vectorAccounts[indexAccount].role = new_role;
 		break;
 	}
@@ -55,8 +51,6 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 }
 
 
-
-
 //функция ввода индекса аккаунта
 int printAccIndex() {
 	int indexAccount;
@@ -64,6 +58,7 @@ int printAccIndex() {
 	std::cin >> indexAccount;
 	return indexAccount;
 }
+
 
 //функция удаления учётной записи
 void deleteAccount(std::vector<Account> &vectorAccounts,int indexDeleteAccount, int indexNowAccount){
@@ -86,18 +81,21 @@ void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) 
 	bool isRunUchZap = true;
 	while (isRunUchZap) {
 		int vibor;
-		std::cout << "Выберите пункт меню:\n1.Просмотр всех учётных записей\n2. Добавление учётной записи\n3. Редактирование учётной записи\n4.Удаление учётной записи\n0.Назад\n";
+		std::cout << "Выберите пункт меню:\n1.Просмотр всех учётных записей\n2.Добавление учётной записи\n3.Редактирование учётной записи\n4.Удаление учётной записи\n0.Назад\n";
 		std::cin >> vibor;
 		switch (vibor) {
 		case 0: return;
 		case 1:
 		{
-			printUserList(vectorAccounts);
+			//printUserList(vectorAccounts);
+			printShapkaAccounts();
+			printAccounts(vectorAccounts, 0, -1);
 			break;
 		}
 		case 2:
 		{
 			vectorAccounts = inputNewAccountData(false);
+			
 			break;
 		}
 		case 3:
@@ -120,12 +118,13 @@ void processMode() {
 	std::vector<Ticket> ticketList = getTickets();
 	bool isRunPM = true;
 	while (isRunPM) {
-		std::cout << "Выберите один из вариантов:\n1.Покупка билета (инд.задание)\n2.Поиск\n3.Сортировка\n0.Назад\n";
-		std::cin >> vibor;
+		vibor = inputInt("Выберите один из вариантов:\n1.Покупка билета (инд.задание)\n2.Поиск\n3.Сортировка\n0.Назад");
 		switch (vibor) {
 		case 0: return;
 		case 1: {
-			buyTicket(ticketList);
+			if (buyTicket(ticketList)) {
+				zapisTickets(ticketList);
+			}
 			break;
 		}
 		case 2: {
@@ -145,10 +144,8 @@ void processMode() {
 void editMode() {
 	int vibor;
 	std::vector<Ticket> ticketList = getTickets();
-	bool isRunEM = true;
-	while (isRunEM) {
-		std::cout << "Выберите один из вариантов:\n1.Просмотр\n2.Добавление\n3.Редактирование\n4.Удаление\n0.Назад\n";
-		std::cin >> vibor;
+	while (true) {
+		vibor = inputInt("Выберите один из вариантов:\n1.Просмотр\n2.Добавление\n3.Редактирование\n4.Удаление\n0.Назад");
 		switch (vibor) {
 		case 0: return;
 		case 1: {
@@ -157,15 +154,15 @@ void editMode() {
 			break;
 		}
 		case 2: {
-			addZapis(ticketList) == true ? printMessage(6) : printMessage(1);
+			if (addZapis(ticketList))printMessage(6);
 			break;
 		}
 		case 3: {
-			editZapis(ticketList) == true ? printMessage(7) : printMessage(1);
+			if(editZapis(ticketList))printMessage(7);
 			break;
 		}
 		case 4: {
-			deleteZapis(ticketList) == true ? printMessage(5) : printMessage(1);
+			if (deleteZapis(ticketList))printMessage(5);
 			break;
 		}
 		}
@@ -174,31 +171,28 @@ void editMode() {
 
 void chooseMode() {
 	int viborMode = 0;
-	std::cout << "Выберите режим:\n1.Режим редактирования\n2.Режим обработки\n0.Назад\n";
-	std::cin >> viborMode;
-	switch (viborMode) {
-	case 0: return;
-	case 1: {
-		editMode();
-		break;
-	}
-	case 2: {
-		processMode();
-		break;
-	}
+	while (true) {
+		viborMode = inputInt("Выберите режим:\n1.Режим редактирования\n2.Режим обработки\n0.Назад");
+		switch (viborMode) {
+		case 0: return;
+		case 1: {
+			editMode();
+			break;
+		}
+		case 2: {
+			processMode();
+			break;
+		}
+		}
 	}
 }
-
-
-
 
 
 //запуск меню администратора
 int startAdministrator(std::vector<Account> &vectorAccounts, int accountIndex) {
 	int vibor;
 	while (true) {
-		std::cout << "Выберите пункт меню:\n1.Работа с учётными записями\n2.Работа с данными\n0.Выход\n";
-		std::cin >> vibor;
+		vibor = inputInt("Выберите пункт меню:\n1.Работа с учётными записями\n2.Работа с данными\n0.Выход");
 		switch (vibor) {
 		case 0:return 1;
 		case 1:
@@ -210,7 +204,6 @@ int startAdministrator(std::vector<Account> &vectorAccounts, int accountIndex) {
 			chooseMode();
 			break;
 		}
-			
 		}
 	}
 	return 0;

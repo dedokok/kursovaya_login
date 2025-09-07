@@ -1,20 +1,16 @@
 #pragma once
-#include <cstdlib>
 #include "Funkcii\Funkcii.h"
 #include <Windows.h>
+#include <clocale>
 #include "Moduli\Administrator\ModulAdministrator.h"
 #include "Moduli\Polzovatel\PolzovatelModul.h"
-#include <clocale>
 int main()
 {
-
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-
     std::locale::global(std::locale(""));
     srand(static_cast<unsigned int>(time(0)));
-    std::string login, password;
-    bool isRun = true, isMenu = true, isLogin = false, isFail = false;
+    bool isRun = true, isLogin = false;
     int role = 0, accountIndex = -1;
     std::vector<Account> vectorAccounts = getAccounts();
     while (isRun) {
@@ -22,12 +18,12 @@ int main()
             role = vectorAccounts[accountIndex].role;
             int vibor;
             if (role == 0) {
-                if (startPolzovatel() == 1)return 1;
+                startPolzovatel() == 1;
             }
             else if (role == 1) {
-                if(startAdministrator(vectorAccounts,accountIndex)==1)return 1;
+                startAdministrator(vectorAccounts, accountIndex) == 1;
             }
-            
+            return 0;
         }
         else {
             accountIndex = loginInAccount(vectorAccounts);
@@ -35,4 +31,3 @@ int main()
     }
     return 1;
 }
-

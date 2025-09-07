@@ -1,13 +1,14 @@
 #include "Individual.h"
-//все вводы сделать через inputInt и inputStr
 
 
+//функци вывода шапки
 void printShapka() {
 	printf("-------------------------------------------------------------------------------------------------------\n");
 	printf("|  №  |       Тип       |       Куда      |    День    | Время | Время | Вмес| Кол | Ст.  | Кол.| Ст. |\n");
 	printf("|  №  |    самолёта     |       летит     |   вылета   | вылета|прибыт.| тим.| биз | Биз. | эк. | эк. |\n");
 	printf("-------------------------------------------------------------------------------------------------------\n");
 }
+
 
 void printTickets(std::vector<Ticket> &ticketList, int startI, int kolvoPrint) {
 	if (kolvoPrint == -1) { kolvoPrint = ticketList.size(); }
@@ -17,9 +18,9 @@ void printTickets(std::vector<Ticket> &ticketList, int startI, int kolvoPrint) {
 			"| "  << std::setw(3) << t.raceNumber <<
 			" | " << std::left << std::setw(15) << t.samoletType <<
 			" | " << std::left << std::setw(15) << t.punktNaznacheniya <<
-			" | " << t.dateVilet <<
-			" | " << t.vremyaVilet <<
-			" | " << t.vremyaPrilet <<
+			" | " << std::setw(10) << t.dateVilet <<
+			" | " << std::setw(5) << t.vremyaVilet <<
+			" | " << std::setw(5) << t.vremyaPrilet <<
 			" | " << std::setw(3) << t.vmestimost <<
 			" | " << std::setw(3) << t.kolvoTicketBiznes <<
 			" | " << std::setw(4) << t.stoimostBiznes <<
@@ -28,18 +29,15 @@ void printTickets(std::vector<Ticket> &ticketList, int startI, int kolvoPrint) {
 			"|"  << std::endl;
 		printf("-------------------------------------------------------------------------------------------------------\n");
 	}
-
 }
 
 
 //функция ввода номера рейса для покупки билета
 int getTicketRace() {
 	int ticketRace;
-	std::cout << "Введите номер рейса\n";
-	std::cin >> ticketRace;
-	std::cout << std::endl;
-	return ticketRace;
+	return inputInt("Введите номер рейса\n");
 }
+
 
 //функция получения индекса рейса в векторе по его номеру(рейса)
 int getRaceIndex(std::vector<Ticket>& ticketList, int ticketRace) {
@@ -51,49 +49,11 @@ int getRaceIndex(std::vector<Ticket>& ticketList, int ticketRace) {
 	return -1;
 }
 
-//функция вывода ошибок
-void printMessage(int messageCode) {
-	std::string message = "Ошибка";
-	switch (messageCode) {
-	case 1: { message = "Ошибка ввода\n\n"; break; }
-	case 2: { message = "Ошибка вывода\n\n"; break; }
-	case 3: { message = "Слишком много!\n\n"; break; }
-	case 4: { message = "Такой рейс уже есть\n"; break; }
-	case 5: { message = "Успешно удалил\n\n"; break; }
-	case 6: { message = "Успешно добавил\n\n"; break; }
-	case 7: { message = "Успешно изменил\n\n"; break; }
-	case 8: { message = "Введите, что будете искать\n"; break; }
-	case 9: { message = "Ничего не найдено\n\n\n"; break; }
-	}
-	std::cout << message;
-}
-
-
-//функция ввода типа и количеста билетов
-int getTicketKolvoType(std::vector<Ticket>& ticketList,int &indexRace, int &kolvoTicket, int &classType,int &maxTicket) {
-
-	std::cout << "Введите класс билета:\n1.Бизнес\n2.Эконом\n";
-	std::cin >> classType;
-	std::cout << "Введите количество билетов(максимум ";
-	if (classType == 1) {
-		maxTicket = ticketList[indexRace].kolvoTicketBiznes;
-	}
-	else if (classType == 2) {
-		maxTicket = ticketList[indexRace].kolvoTicketEkonom;
-	}
-	std::cout << maxTicket << ")\n";
-	std::cin >> kolvoTicket;
-	return 1;
-}
-
-
-
 
 //функция записи аккаунта в файл
 bool zapisTickets(std::vector<Ticket>& ticketList) {
 	nlohmann::json j{};
 	j["ticketList"] = ticketList;
-
 	std::ofstream out;
 	out.open("ticketList.json");
 	if (out.is_open())
@@ -134,36 +94,34 @@ bool checkRace(int ticketRaceNumber, std::vector<Ticket>& ticketList) {
 		}
 	}
 	return 1;
-	
 }
 
-//функция ввода числовых значений Ticket (чтобы избежать ошибок если ввели букву)
-bool inputInt(int &ticketField,std::string prompt) {
-	std::cout << prompt << std::endl;
-	std::cin >> prompt;
-	try {
-		ticketField= std::stoi(prompt);
+
+//функция проверки длины значений
+bool checkDlina(Ticket &ticket) {
+	if (ticket.raceNumber < 1000 && ticket.raceNumber>0 && ticket.samoletType.length() < 16 && ticket.samoletType.length() > 0
+		&& ticket.dateVilet.length() > 0 && ticket.dateVilet.length() < 11
+		&& ticket.vremyaPrilet.length() > 0 && ticket.vremyaPrilet.length() < 6
+		&& ticket.vremyaVilet.length() > 0 && ticket.vremyaVilet.length() < 6
+		&& ticket.vmestimost > -1 && ticket.vmestimost<1000
+		&& ticket.kolvoTicketBiznes>-1 && ticket.kolvoTicketBiznes<1000
+		&& ticket.kolvoTicketEkonom>-1 && ticket.kolvoTicketEkonom<1000
+		&& ticket.stoimostBiznes>-1 && ticket.stoimostBiznes<10000
+		&& ticket.stoimostEkonom>-1 && ticket.stoimostEkonom < 10000) {
+		return 1;
 	}
-	catch (...) {
-		printMessage(1);
+	else {
+		ticket.raceNumber = -1;
 		return 0;
 	}
-}
-
-//функция ввода строкового поля Ticket
-void inputTicketStr(std::string& ticketField, std::string prompt) {
-	std::cout << prompt << std::endl;
-	std::cin >> ticketField;
+	return 0;
 }
 
 //функция ввода значений новой записи. Switch, потому что при вызове из editZapis нужно изменить только 1 поле, а не сразу все
-bool inputZapis(Ticket &ticket, std::vector<Ticket>& ticketList, int viborEdit) {
-	std::string string_input;
-	int int_input;
-	bool isRunInputZapis = true;
+bool inputZapis(Ticket& ticket, std::vector<Ticket>& ticketList, int viborEdit) {
 	switch (viborEdit) {
 	case 1: {
-		if (!inputInt(ticket.raceNumber, "Введите номер рейса")) {
+		if (!inputIntSsilka(ticket.raceNumber, "Введите номер рейса")) {
 			return 0;
 		}
 		else if (!checkRace(ticket.raceNumber, ticketList)) {
@@ -171,32 +129,42 @@ bool inputZapis(Ticket &ticket, std::vector<Ticket>& ticketList, int viborEdit) 
 		}
 		break;
 	}
-	case 2:  {inputTicketStr(ticket.samoletType, "Введите тип самолёта"); break;}
-	case 3:  {inputTicketStr(ticket.punktNaznacheniya, "Введите пункт назначения (латиницей)"); break;}
-	case 4:  {inputTicketStr(ticket.dateVilet, "Введите день вылета"); break;}
-	case 5:  {inputTicketStr(ticket.vremyaVilet, "Введите время вылета"); break;}
-	case 6:  {inputTicketStr(ticket.vremyaPrilet, "Введите время прилёта"); break;}
-	case 7:  {if (!inputInt(ticket.vmestimost, "Введите вместимость самолёта")) { return 0; } break;}
-	case 8:  {if (!inputInt(ticket.kolvoTicketBiznes, "Введите количество билетов бизнес класса")) { return 0; } break;}
-	case 9:  {if (!inputInt(ticket.stoimostBiznes, "Введите стоимость билета бизнес класса")) { return 0; } break;}
-	case 10: {if (!inputInt(ticket.kolvoTicketEkonom, "Введите количество билетов эконом класса")) { return 0; } break;}
-	case 11: {if (!inputInt(ticket.stoimostEkonom, "Введите стоимость билета эконом класса")) { return 0; } break;}}
-
+	case 2: {
+		inputStrSsilka(ticket.samoletType, "Введите тип самолёта");
+		if (ticket.samoletType.length() > 15) {
+			printMessage(1);
+			ticket.raceNumber == -1;
+			return 0;
+		}
+		break;
+	}
+	case 3: { inputStrSsilka(ticket.punktNaznacheniya, "Введите пункт назначения (латиницей)"); break; }
+	case 4: { inputStrSsilka(ticket.dateVilet, "Введите день вылета"); break; }
+	case 5: { inputStrSsilka(ticket.vremyaVilet, "Введите время вылета"); break; }
+	case 6: { inputStrSsilka(ticket.vremyaPrilet, "Введите время прилёта"); break; }
+	case 7: { if (!inputIntSsilka(ticket.vmestimost, "Введите вместимость самолёта")) { return 0; } break; }
+	case 8: { if (!inputIntSsilka(ticket.kolvoTicketBiznes, "Введите количество билетов бизнес класса")) { return 0; } break; }
+	case 9: { if (!inputIntSsilka(ticket.stoimostBiznes, "Введите стоимость билета бизнес класса")) { return 0; } break; }
+	case 10: { if (!inputIntSsilka(ticket.kolvoTicketEkonom, "Введите количество билетов эконом класса")) { return 0; } break; }
+	case 11: { if (!inputIntSsilka(ticket.stoimostEkonom, "Введите стоимость билета эконом класса")) { return 0; } break; }
+	}
 	return 1;
 }
 
 
 //функция добавления новой записи
 bool addZapis(std::vector<Ticket> &ticketList) {
-
 	Ticket ticket;
 	for (int i = 1; i < 12; i++) {
 		if (!inputZapis(ticket, ticketList,i)) {
 			return 0;
 		}
 	}
-	ticketList.push_back(ticket);
-	zapisTickets(ticketList);
+	if (checkDlina(ticket)) {
+		ticketList.push_back(ticket);
+		zapisTickets(ticketList);
+	}
+	else { printMessage(1); return 0; }
 	return 1;
 }
 
@@ -204,7 +172,6 @@ bool addZapis(std::vector<Ticket> &ticketList) {
 //функция редактирования
 bool editZapis(std::vector<Ticket>& ticketList) {
 	int ticketRace = getTicketRace();
-	int viborEdit = -1;
 	int indexRaceInVector = getRaceIndex(ticketList, ticketRace);
 	if (indexRaceInVector != -1) {
 		std::cout << "Выберите, что изменить:\n" <<
@@ -220,15 +187,18 @@ bool editZapis(std::vector<Ticket>& ticketList) {
 			"11. Количество билетов эконом класса\n" <<
 			"12. Стоимость билета эконом класса\n" <<
 			"0. Назад\n";
-		std::cin >> viborEdit;
-		if (viborEdit == 0) {
-			return 1;
+		int viborEdit = inputInt("");
+		if (viborEdit == -1 || viborEdit==0) {
+			return 0;
 		}
-		Ticket ticket=ticketList[indexRaceInVector]; 
-			inputZapis(ticket, ticketList, viborEdit);
+		Ticket ticket = ticketList[indexRaceInVector];
+		inputZapis(ticket, ticketList, viborEdit);
+		if (checkDlina(ticket)) {
 			ticketList[indexRaceInVector] = ticket;
 			zapisTickets(ticketList);
-			return 1;
+		}
+		else { printMessage(1); return 0; }
+		return 1;
 	}
 	return 0;
 }
@@ -239,17 +209,13 @@ bool deleteZapis(std::vector<Ticket>& ticketList) {
 	int ticketRace = getTicketRace();
 	int indexRaceInVector = getRaceIndex(ticketList, ticketRace);
 	auto begin = ticketList.cbegin();
-
 	try {
 		ticketList.erase(begin + indexRaceInVector);
 		return 1;
 	}
 	catch (...) { return 0; }
-		
-	
 	return 0;
 }
-
 
 
 ////Сверху был режим редактирования, теперь будет режим обработки данных
@@ -262,30 +228,44 @@ bool deleteZapis(std::vector<Ticket>& ticketList) {
 
 //функция покупки билета
 int buyTicket(std::vector<Ticket>& ticketList) {
-	int ticketRace = getTicketRace();
+	int ticketRace = inputInt("Введите номер рейса");
 	int indexRace = getRaceIndex(ticketList, ticketRace);
-	int kolvoTicket = 0, classType_int, maxTicket = 0;
-	std::string classType_str;
+	int kolvoTicket = inputInt("Введите количество билетов\n");
+	int classType = inputInt("Введите класс билета : \n1.Бизнес\n2.Эконом\n");
 	if (indexRace == -1) {
 		printMessage(-1);
 		return -1;
 	}
-	getTicketKolvoType(ticketList, indexRace, kolvoTicket, classType_int, maxTicket);
-
-	if (kolvoTicket <= maxTicket) {
-		if (classType_int) {
+	if (classType == 1) {
+		if (ticketList[indexRace].kolvoTicketBiznes >= kolvoTicket) {
 			ticketList[indexRace].kolvoTicketBiznes -= kolvoTicket;
-			return 1;
+			std::cout << "\nУспешная покупка!\n";
+		}
+		else if (ticketList[indexRace].kolvoTicketEkonom >= kolvoTicket) {
+			std::cout << "\nНа этот рейс нет нужного количества билетов бизнес класса" <<
+				"но есть билеты эконом класса в количестве " <<
+				ticketList[indexRace].kolvoTicketEkonom << std::endl;
 		}
 		else {
-			ticketList[indexRace].kolvoTicketEkonom -= kolvoTicket;
-			return 1;
+			std::cout << "\nНа этот рейс нет нужного количеста билетов!\n";
 		}
+		return 1;
 	}
-	else {
-		printMessage(3);
+	else if (classType == 2) {
+		if (ticketList[indexRace].kolvoTicketEkonom >= kolvoTicket) {
+			ticketList[indexRace].kolvoTicketEkonom -= kolvoTicket;
+		}
+		else if (ticketList[indexRace].kolvoTicketBiznes >= kolvoTicket) {
+			std::cout << "\nНа этот рейс нет нужного количества билетов эконом класса" <<
+				"но есть билеты бизнес класса в количестве " <<
+				ticketList[indexRace].kolvoTicketBiznes << std::endl;
+		}
+		else {
+			std::cout << "\nНа этот рейс нет нужного количеста билетов\n";
+		}
+		return 1;
 	}
-
+	else { printMessage(1); }
 	return -1;
 }
 
@@ -303,6 +283,7 @@ void poiskSamoletType(std::vector<Ticket>& ticketList, std::string samoletType) 
 	if (kolvoPoisk == 0) { printMessage(9); }
 }
 
+
 //функция поиска по пункту назначения
 void poiskPunktNaznach(std::vector<Ticket>& ticketList, std::string punktNaznach){
 	printShapka();
@@ -315,6 +296,7 @@ void poiskPunktNaznach(std::vector<Ticket>& ticketList, std::string punktNaznach
 	}
 	if (kolvoPoisk == 0) { printMessage(9); }
 }
+
 
 //функция поиска по цене билета
 void poiskTicketPrice(std::vector<Ticket>& ticketList,int classType, int sravnenie, int summa) {
@@ -350,50 +332,37 @@ void poiskTicketPrice(std::vector<Ticket>& ticketList,int classType, int sravnen
 }
 
 
-std::string inputPoiskStr() {
-	std::string stroka;
-	std::cout << "Введите, что будете искать\n";
-	std::cin >> stroka;
-	return stroka;
-}
-
-
 //функция выбора типа поиска
 void poiskTicket(std::vector<Ticket>& ticketList) {
-	int viborPoisk = 0;
 	std::cout << "Введите, по какому полю будете искать:\n" <<
 		"1. Тип самолёта\n" <<
 		"2. Пункт назначения\n" <<
 		"3. Стоимость билета\n" <<
 		"0. Назад\n";
-	std::cin >> viborPoisk;
+	int viborPoisk = inputInt("");
 	switch (viborPoisk) {
 	case 0: return;
 	case 1: {
-		poiskSamoletType(ticketList,inputPoiskStr());
+		poiskSamoletType(ticketList,inputStr("Введите пункт назначения"));
 		break;
 	}
 	case 2: {
-		poiskPunktNaznach(ticketList, inputPoiskStr());
+		poiskPunktNaznach(ticketList, inputStr("Введите пункт назначения"));
 		break;
 	}
 	case 3: {
-		int classType, sravnenie, summa;
-
-		std::cout << "Введите, в каком классе искать\n1.Бизнес\n 2.Эконом\n3.Во всех\n0.Назад\n";
-		std::cin >> classType;
-		if (classType == 0) { return; }
-		std::cout << "Введите, больше или меньше какой-то цены\n1.Больше\n2.Меньше\n0.Назад\n";
-		std::cin >> sravnenie;
-		if (sravnenie == 0) { return; }
-		std::cout << "Укажите цену\n";
-		std::cin >> summa;
+		int classType = inputInt("Введите, в каком классе искать\n1.Бизнес\n 2.Эконом\n3.Во всех\n0.Назад");
+		if (classType == -1) { return; }
+		int sravnenie = inputInt("Введите, больше или меньше какой-то цены\n1.Больше\n2.Меньше\n0.Назад\n");
+		if (sravnenie == -1) { return; }
+		int summa = inputInt("Укажите цену");
+		if (summa == -1) { return; }
 		poiskTicketPrice(ticketList, classType, sravnenie, summa);
 		break;
 	}
 	}
-	
 }
+
 
 //компаратор для сортировки по стоимости бизнес класса
 bool compareSortBiznesPrice(const Ticket& a, const Ticket& b) {
@@ -417,20 +386,25 @@ void sortEkonomPrice(std::vector<Ticket> &ticketList) {
 
 
 
-//компаратор для сортировки по вместительности
-bool compareSortVmestitelnost(const Ticket& a, const Ticket& b) {
+//компаратор для сортировки по вместимости
+bool compareSortVmestimost(const Ticket& a, const Ticket& b) {
 	return a.vmestimost < b.vmestimost;
 }
-//сортировка по вместительности
-void sortVmestitelnost(std::vector<Ticket> &ticketList) {
-	std::sort(ticketList.begin(), ticketList.end(), compareSortVmestitelnost);
+//сортировка по вместимости
+void sortVmestimost(std::vector<Ticket>& ticketList) {
+	std::sort(ticketList.begin(), ticketList.end(), compareSortVmestimost);
 }
+
 
 //функция выбора сортировки
 void sortTicket(std::vector<Ticket> ticketList) {
-	int viborSort = 0;
-	std::cout << "Выберите, по чём сортировать:\n1.Цене билетов бизнес класса\n2.Цене билетов эконом класса\n3.Вместимости\n0.Назад\n";
-	std::cin >> viborSort;
+	std::cout << "Выберите, по чём сортировать:\n"<<
+		"1.Цене билетов бизнес класса\n"<<
+		"2.Цене билетов эконом класса\n"<<
+		"3.Количеству билетов бизнес класса\n"<<
+		"4.Количеству билетов эконом класса\n"<<
+		"0.Назад\n";
+	int viborSort = inputInt("");
 	if (viborSort == 0) { return; }
 	printShapka();
 	switch (viborSort) {
@@ -442,12 +416,8 @@ void sortTicket(std::vector<Ticket> ticketList) {
 		sortEkonomPrice(ticketList); break;
 	}
 	case 3: {
-		sortVmestitelnost(ticketList); break;
+		sortVmestimost(ticketList); break;
 	}
 	}
 	printTickets(ticketList, 0, -1);
 }
-
-
-
-
