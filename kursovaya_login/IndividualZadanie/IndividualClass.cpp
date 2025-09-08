@@ -45,30 +45,6 @@ public:
 		}
 	}
 
-	//метод получения строковых параметров по индексу
-	std::string getStrParam(int indexParam) {
-		std::string data = "-";
-		switch (indexParam) {
-		case 1: { return samoletType; }
-		case 2: { return punktNaznacheniya; }
-		case 3: { return dateVilet; }
-		case 4: { return vremyaVilet; }
-		case 5: { return vremyaPrilet; }
-		}
-		return data;
-	}
-	//метод получения числовых параметров по индексу + перегрузка
-	int getIntParam(int indexParam) {
-		switch (indexParam) {
-		case 1: { return raceNumber; }
-		case 2: { return vmestimost; }
-		case 3: { return kolvoTicketBiznes; }
-		case 4: { return stoimostBiznes; }
-		case 5: { return kolvoTicketEkonom; }
-		case 6: { return stoimostEkonom; }
-		}
-	}
-
 
 	void printTicket(){
 		std::cout <<
