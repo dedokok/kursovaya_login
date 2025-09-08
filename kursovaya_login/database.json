@@ -13,9 +13,9 @@
             "sault": "WJHKKeiyAN"
         },
         {
-            "login": "roman",
-            "password": "73cf70284afde59818205db282164ba075d2b3bc55487d2ab2c81d3e3a936ec8",
-            "role": 0,
+            "login": "-",
+            "password": "50293fb2fa3d4f925ce3ab8b69ed17613b403c8afb851109e2fae15c0d42fb9a",
+            "role": 1,
             "sault": "MagZLcmvKh"
         },
         {
@@ -23,6 +23,18 @@
             "password": "139bb6fa138501bcdcc0228274f9a713e267834f1dfe28b1b57e18a5d89a7192",
             "role": 0,
             "sault": "tQJBEjPYZB"
+        },
+        {
+            "login": "SUperIdol",
+            "password": "d910780cad9eded892b03064c5b7a073c10c8b640d01e8700e71d7172b11a610",
+            "role": 1,
+            "sault": "lzJIswLNZl"
+        },
+        {
+            "login": "dedokok3",
+            "password": "6c6fda68546821d5c3b8431a729ae88816c4d2399f85e9a289e777076fcba86d",
+            "role": 1,
+            "sault": "lMxkzzSaXs"
         }
     ]
 }

@@ -17,5 +17,5 @@ int  buyTicket(std::vector<Ticket> &ticketList);
 
 void poiskTicket(std::vector<Ticket>& ticketList);
 void sortTicket(std::vector<Ticket> ticketList);
-void printShapka();
+void printShapkaProsmotr();
 void printTickets(std::vector<Ticket>& ticketList, int startI, int kolvoPrint);

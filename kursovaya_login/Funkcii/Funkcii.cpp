@@ -33,22 +33,54 @@ void printAccounts(std::vector<Account> &vectorAccounts, int startI, int kolvoPr
 //функция вывода повторяющихся в нескольких местах сообщений
 void printMessage(int messageCode) {
 	switch (messageCode) {
-	case 1: { std::cout << "Ошибка\n"; break; }
-	case 2: { std::cout << "Ошибка ввода\n"; break; }
-	case 3: { std::cout << "Ошибка вывода\n"; break; }
-	case 4: { std::cout << "Такой рейс уже есть!\n"; break; }
-	case 5: { std::cout << "Успешно удалил\n"; break; }
-	case 6: { std::cout << "Успешно добавил\n"; break; }
-	case 7: { std::cout << "Успешно изменил\n"; break; }
-	case 9: { std::cout << "Ничего не найдено\n"; break; }
+	case 1: { std::cout << "Ошибка\n\n"; break; }
+	case 2: { std::cout << "Ошибка ввода\n\n"; break; }
+	case 3: { std::cout << "Ошибка вывода\n\n"; break; }
+	case 4: { std::cout << "Такой рейс уже есть!\n\n"; break; }
+	case 5: { std::cout << "Успешно удалил\n\n"; break; }
+	case 6: { std::cout << "Успешно добавил\n\n"; break; }
+	case 7: { std::cout << "Успешно изменил\n\n"; break; }
+	case 9: { std::cout << "Ничего не найдено\n\n"; break; }
 	case 10: { std::cout << "\nСлишком длинный ник (максимум 15 букв)!\n\n"; break; }
+	case 11: { std::cout << "\nТакой аккаунт уже существует!\n\n"; break; }
 	}
+}
+
+
+//функция вывода шапок
+void printShapka(int shapkaIndex) {
+	switch (shapkaIndex) {
+	case 1: { std::cout << "\n\n-------------Меню администратора-------------\n\n"; break; }
+	case 2: { std::cout << "\n\n--------------Меню пользователя--------------\n\n"; break; }
+	case 3: { std::cout << "\n\n---------------Меню сортировки---------------\n\n"; break; }
+	case 4: { std::cout << "\n\n-----------------Меню поиска-----------------\n\n"; break; }
+	case 5: { std::cout << "\n\n----------------Покупка билета---------------\n\n"; break; }
+	case 6: { std::cout << "\n\n-----Меню редактирования учётной записи------\n\n"; break; }
+	case 7: { std::cout << "\n\n--------Меню удаления учётной записи---------\n\n"; break; }
+	case 8: { std::cout << "\n\n-------------Меню удаления рейса-------------\n\n"; break; }
+	case 9: { std::cout << "\n\n------------Меню добавления рейса------------\n\n"; break; }
+	case 10: { std::cout << "\n\n---------Меню редактирования рейса-----------\n\n"; break; }
+	case 11: { std::cout << "----------------Авторизация-----------------\n\n"; break; }
+	case 12: { std::cout << "\n\n------Добавление нового пользователя---------\n\n"; break; }
+	case 13: { std::cout << "\n\n-----------Режим редактирования--------------\n\n"; break; }
+	case 14: { std::cout << "\n\n----------Режим обработки данных-------------\n\n"; break; }
+	case 15: { std::cout << "\n\n--------Работа с учётными записями-----------\n\n"; break; }
+	case 16: { std::cout << "\n\n-------------Работа с данными----------------\n\n"; break; }
+	}
+}
+
+//функция вывода
+void coutFunc(std::string message) {
+	std::cout << message;
 }
 
 
 //функция ввода числа
 int inputInt(std::string prompt) {
-	std::cout << prompt << std::endl;
+	
+	coutFunc(prompt);
+	//std::cout<<prompt;
+
 	std::cin >> prompt;
 	try {
 		return std::stoi(prompt);
@@ -59,6 +91,16 @@ int inputInt(std::string prompt) {
 	}
 }
 
+
+//функция проверки, правильно ли введена строка (нет ли плохих символов)
+bool checkCorrStr(std::string strokaForCheck) {
+	for (int i = 0; i < strokaForCheck.length(); i++) {
+		if (strokaForCheck[i] < 0) {
+			return 0;
+		}
+	}
+	return 1;
+}
 
 //функция ввода числа по ссылке
 bool inputIntSsilka(int &ticketField, std::string prompt) {
@@ -80,14 +122,21 @@ bool inputIntSsilka(int &ticketField, std::string prompt) {
 std::string inputStr(std::string prompt) {
 	std::cout << prompt << std::endl;
 	std::cin >> prompt;
-	return prompt;
+	if (checkCorrStr(prompt)) {
+		return prompt;
+	}
+	else { return "-"; }
 }
 
 
 //функция ввода строки по ссылке
 void inputStrSsilka(std::string& ticketField, std::string prompt) {
 	std::cout << prompt << std::endl;
-	std::cin >> ticketField;
+	std::cin >> prompt;
+	if (checkCorrStr(prompt)){
+		ticketField = prompt;
+	}
+	else { ticketField = "-"; }
 }
 
 
@@ -100,15 +149,22 @@ std::vector<Account> inputNewAccountData(bool isAdministrator) {
 		vectorAccounts = getAccounts();
 	}
 	new_login = inputStr("Введите логин нового человека");
-	if (checkIfInDB(new_login,vectorAccounts) != -1) {
-		std::cout << "Такой аккаунт уже есть!\n";
+	if (new_login == "-") { 
+		printMessage(1);
+		return vectorAccounts; 
+	}
+	else if (checkIfInDB(new_login,vectorAccounts) != -1) {
+		printMessage(11);
 		return vectorAccounts;
 	}
-	if (new_login.length() > 16) {
+	else if (new_login.length() > 16) {
 		printMessage(10);
 		return vectorAccounts;
 	}
 	new_password = inputStr("\nВведите пароль нового человека");
+	if (new_password == "-") {
+		return vectorAccounts;
+	}
 	if (!isAdministrator) {
 		new_role = inputInt("\nВведите роль нового человека");
 		if (new_role != 1 && new_role != 2) {
@@ -195,6 +251,7 @@ int loginInAccount(std::vector<Account> &vectorAccounts) {
 	bool isLogin = false;
 	std::string login, password;
 	int role = 0, accountIndex = -1;
+	printShapka(11);
 	login = inputStr("Введите логин");
 	std::cout << "\nВведите пароль\n";
 	password = vvodParol();

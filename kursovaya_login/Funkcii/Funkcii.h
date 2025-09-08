@@ -38,3 +38,4 @@ void printMessage(int messageCode);
 void isThereBD();
 void printShapkaAccounts();
 void printAccounts(std::vector<Account>& vectorAccounts, int startI, int kolvoPrint);
+void printShapka(int shapkaIndex);
