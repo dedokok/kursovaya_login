@@ -134,9 +134,9 @@ void inputStrSsilka(int indexIntParam, std::string prompt, Ticket& ticket) {
 	std::cout << prompt << std::endl;
 	std::cin >> prompt;
 	if (checkCorrStr(prompt)){
-		ticket.setParam(prompt,indexIntParam);
+		ticketField = prompt;
 	}
-	else { ticket.setParam(-1,1); }
+	else { ticketField = "-"; }
 }
 
 
