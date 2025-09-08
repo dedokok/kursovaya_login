@@ -1,5 +1,4 @@
 #pragma once
-#include "IndividualClass.cpp"
 #include "../Funkcii/Funkcii.h"
 #include <ctime>
 #include <chrono>

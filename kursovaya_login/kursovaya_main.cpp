@@ -15,7 +15,7 @@ int main()
     std::vector<Account> vectorAccounts = getAccounts();
     while (isRun) {
         if (accountIndex!=-1) {
-            role = vectorAccounts[accountIndex].role;
+            role = vectorAccounts[accountIndex].getIntParam(1);
             int vibor;
             if (role == 0) {
                 startPolzovatel() == 1;

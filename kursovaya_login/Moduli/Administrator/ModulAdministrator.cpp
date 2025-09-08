@@ -17,7 +17,7 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 			return;
 		}
 		SHA256 sha256;
-		vectorAccounts[indexAccount].password = sha256(new_data + vectorAccounts[indexAccount].sault);
+		vectorAccounts[indexAccount].setParam(sha256(new_data + vectorAccounts[indexAccount].getStrParam(3)),2);
 		break;
 	}
 	case 2: {
@@ -31,7 +31,7 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 				printMessage(10);
 				return;
 			}
-			vectorAccounts[indexAccount].login = new_data;
+			vectorAccounts[indexAccount].setParam(new_data,1);
 		}
 		else {
 			printMessage(11);
@@ -41,7 +41,7 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 	}
 	case 3: {
 		int new_role = inputInt("Введите роль");
-		vectorAccounts[indexAccount].role = new_role;
+		vectorAccounts[indexAccount].setParam(new_role,1);
 		break;
 	}
 	case 4: {
@@ -51,8 +51,8 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 			return;
 		}
 		SHA256 sha256;
-		vectorAccounts[indexAccount].sault = saultGen();
-		vectorAccounts[indexAccount].password = sha256(new_data + vectorAccounts[indexAccount].sault);
+		vectorAccounts[indexAccount].setParam(saultGen(), 3);
+		vectorAccounts[indexAccount].setParam(sha256(new_data + vectorAccounts[indexAccount].getStrParam(3)),2);
 		break;
 	}
 	}

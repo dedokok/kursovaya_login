@@ -1,9 +1,8 @@
 #pragma once
 #include <fstream>
 #include <string>
-
 #include <iostream>
-
+#include "../IndividualZadanie/IndividualClass.cpp"
 #include <vector>
 #include "Account.cpp"
 #include "sha256.h" //взял библиотеку https://create.stephan-brumme.com/hash-library/ для хеширования
@@ -18,7 +17,7 @@
 
 
 bool zapisAccount(std::string login, std::string password, int role, std::vector<Account>& vectorAccounts, bool isChange);
-bool inputIntSsilka(int& ticketField, std::string prompt);
+bool inputIntSsilka(int indexIntParam, std::string prompt, Ticket& ticket);
 bool getAccept();
 
 int checkLogin(std::string v_login, std::string v_password, std::vector<Account> &vectorAccounts);
@@ -33,7 +32,7 @@ std::string saultGen();
 std::vector<Account> getAccounts();
 std::vector<Account> inputNewAccountData(bool isAdministrator);
 
-void inputStrSsilka(std::string& ticketField, std::string prompt);
+void inputStrSsilka(int indexIntParam, std::string prompt, Ticket& ticket);
 void printMessage(int messageCode);
 void isThereBD();
 void printShapkaAccounts();

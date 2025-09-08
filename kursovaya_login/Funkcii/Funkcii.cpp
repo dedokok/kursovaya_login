@@ -22,10 +22,10 @@ void printAccounts(std::vector<Account> &vectorAccounts, int startI, int kolvoPr
 		Account acc = vectorAccounts[i];
 		std::cout <<
 			"| "  << std::left << std::setw(3) << i <<
-			" | " << std::left << std::setw(15) << acc.login <<
-			" | " << std::left << std::setw(64) << acc.password <<
-			" | " << std::left << std::setw(10) << acc.sault <<
-			" | " << std::left << std::setw(4) << acc.role << " |\n";
+			" | " << std::left << std::setw(15) << acc.getStrParam(1) <<
+			" | " << std::left << std::setw(64) << acc.getStrParam(2) <<
+			" | " << std::left << std::setw(10) << acc.getStrParam(3) <<
+			" | " << std::left << std::setw(4) << acc.getIntParam(1) << " |\n";
 		printf("----------------------------------------------------------------------------------------------------------------\n");
 	}
 }
@@ -103,11 +103,11 @@ bool checkCorrStr(std::string strokaForCheck) {
 }
 
 //функция ввода числа по ссылке
-bool inputIntSsilka(int &ticketField, std::string prompt) {
+bool inputIntSsilka(int indexIntParam, std::string prompt, Ticket &ticket) {
 	std::cout << prompt << std::endl;
 	std::cin >> prompt;
 	try {
-		ticketField=std::stoi(prompt);
+		ticket.setParam(std::stoi(prompt),indexIntParam);
 		return 1;
 	}
 	catch (...) {
@@ -130,13 +130,13 @@ std::string inputStr(std::string prompt) {
 
 
 //функция ввода строки по ссылке
-void inputStrSsilka(std::string& ticketField, std::string prompt) {
+void inputStrSsilka(int indexIntParam, std::string prompt, Ticket& ticket) {
 	std::cout << prompt << std::endl;
 	std::cin >> prompt;
 	if (checkCorrStr(prompt)){
-		ticketField = prompt;
+		ticket.setParam(prompt,indexIntParam);
 	}
-	else { ticketField = "-"; }
+	else { ticket.setParam(-1,1); }
 }
 
 
@@ -237,8 +237,8 @@ int checkLogin(std::string v_login, std::string v_password, std::vector<Account>
 	int accountIndex = checkIfInDB(v_login, vectorAccounts);
 	if (accountIndex != -1 && vectorAccounts.size()>0) {
 		std::string hashed_pass;
-		hashed_pass = sha256(v_password + vectorAccounts[accountIndex].sault);
-		if (hashed_pass == vectorAccounts[accountIndex].password) {
+		hashed_pass = sha256(v_password + vectorAccounts[accountIndex].getStrParam(3));
+		if (hashed_pass == vectorAccounts[accountIndex].getStrParam(2)) {
 			return accountIndex;
 		}
 	}
@@ -337,7 +337,7 @@ int checkIfInDB(std::string login,std::vector<Account>&vectorAccounts) {
 	std::string chel_log;
 	std::transform(login.begin(), login.end(), login.begin(), ::tolower); //превращаю логин в ловеркейс
 	for (int i = 0; i < vectorAccounts.size(); i++) {
-		chel_log = vectorAccounts[i].login;
+		chel_log = vectorAccounts[i].getStrParam(1);
 		std::transform(chel_log.begin(), chel_log.end(), chel_log.begin(), ::tolower); 
 		if (login == chel_log) {
 			return i;
