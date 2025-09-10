@@ -2,62 +2,105 @@
 #include "ModulAdministrator.h";
 
 
+//функция ввода индекса аккаунта
+int inputAccIndex() {
+	int indexAccount;
+	indexAccount = inputInt(28, 1);
+	return indexAccount;
+}
+
+//функция получения и отправки нового пароля
+void getSendNewPassword(std::vector<Account>& vectorAccounts, int indexAccount) {
+	std::string new_data=inputStr(25, 1); 
+	if (new_data == "-") {
+		printErrorMessage(-1);
+		return;
+	}
+	vectorAccounts[indexAccount].setParam(new_data, 2);
+	return;
+}
+
+
+//функция получения и отправки нового логина
+void getSendNewLogin(std::vector<Account>& vectorAccounts, int indexAccount) {
+	std::string new_data=inputStr(24, 1);
+	if (new_data == "-") {
+		return;
+	}
+	std::transform(new_data.begin(), new_data.end(), new_data.begin(), ::tolower);
+	if (checkIfInDB(new_data, vectorAccounts) == -1) {
+		if (new_data.length() > 16) {
+			printErrorMessage(3);
+			return;
+		}
+		vectorAccounts[indexAccount].setParam(new_data, 1);
+	}
+	else {
+		printErrorMessage(4);
+		return;
+	}
+}
+
+
+//функция получения и отправки новой роли
+void getSendNewRole(std::vector<Account>& vectorAccounts, int indexAccount) {
+	int new_role = inputInt(26, 1);
+	vectorAccounts[indexAccount].setParam(new_role, 1);
+}
+
+
+//функция получения и отправки новой соли и пароля(т.к. соль изменилась, а старый пароль не узнать)
+void getSendNewSault(std::vector<Account>& vectorAccounts, int indexAccount) {
+	std::string new_data = inputStr(25, 1);
+	if (new_data == "-") {
+		return;
+	}
+	vectorAccounts[indexAccount].setParam(saultGen(), 3);
+	vectorAccounts[indexAccount].setParam(new_data, 2);
+}
+
+
+//метод вывода информации об аккаунте (полиморфизм)
+void printAccInfo(std::vector<Account>& vectorAccounts) {
+	int accIndex = inputAccIndex();
+	if (accIndex > 0 && accIndex < vectorAccounts.size()) {
+		Account account = vectorAccounts[accIndex];
+		printSomeInfo(account);
+	}
+	else {
+		printErrorMessage(2);
+	}
+}
+
+
+
 
 //функция вызова функции изменения учётной записи
 void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
-	int vibor = inputInt("Что хотите сделать с аккаунтом?\n1. Изменить пароль\n2. Изменить логин\n3. Изменить роль\n4. Изменить соль\n0.Назад");
-	if (vibor == -1 || vibor==0)return;
-	
+	if (indexAccount == -1) { return; }
+	int vibor = inputInt(6,2);
+	if (vibor == -1 || vibor == 0) { return; }
 	std::string new_data;
 	switch (vibor) {//цель кейса
 	case 1: {
-		new_data = inputStr("Введите новый пароль:\n");
-		if (new_data == "-") {
-			printMessage(1);
-			return;
-		}
-		SHA256 sha256;
-		vectorAccounts[indexAccount].setParam(sha256(new_data + vectorAccounts[indexAccount].getStrParam(3)),2);
+		getSendNewPassword(vectorAccounts, indexAccount);
 		break;
 	}
 	case 2: {
-		new_data = inputStr("Введите новый логин:");
-		if (new_data == "-") {
-			printMessage(1);
-			return;
-		}
-		if (checkIfInDB(new_data, vectorAccounts) == -1) {
-			if (new_data.length() > 16) {
-				printMessage(10);
-				return;
-			}
-			vectorAccounts[indexAccount].setParam(new_data,1);
-		}
-		else {
-			printMessage(11);
-			return;
-		}
+		getSendNewLogin(vectorAccounts, indexAccount);
 		break;
 	}
 	case 3: {
-		int new_role = inputInt("Введите роль");
-		vectorAccounts[indexAccount].setParam(new_role,1);
+		getSendNewRole(vectorAccounts, indexAccount);
 		break;
 	}
 	case 4: {
-		new_data = inputStr("новый пароль учётной записи(для соли)\n");
-		if (new_data == "-") {
-			printMessage(1);
-			return;
-		}
-		SHA256 sha256;
-		vectorAccounts[indexAccount].setParam(saultGen(), 3);
-		vectorAccounts[indexAccount].setParam(sha256(new_data + vectorAccounts[indexAccount].getStrParam(3)),2);
+		getSendNewSault(vectorAccounts, indexAccount);
 		break;
 	}
 	}
 	if (zapisAccount("-", "-", -1, vectorAccounts, true) && vibor > 0 && vibor < 5) {
-		printMessage(7);
+		printMessage(3);
 	}
 }
 
@@ -65,21 +108,13 @@ void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
 //подтверждение действия
 bool getAccept() {
 	std::string accept;
-	std::cout << "\nВы действительно хотите это сделать? (Y/n)\n";
-	std::cin >> accept;
+	accept = inputStr(27,1);
 	if (accept == "Y") { return 1; }
-	else if (accept == "n") { std::cout << "Успешная отмена действия\n"; return 0; }
-	else { printMessage(1); return 0; }
+	else if (accept == "n") { printMessage(29); return 0; }
+	else { printErrorMessage(-1); return 0; }
 }
 
 
-//функция ввода индекса аккаунта
-int printAccIndex() {
-	int indexAccount;
-	std::cout << "Введите индекс нужной учётной записи\n";
-	std::cin >> indexAccount;
-	return indexAccount;
-}
 
 
 //функция удаления учётной записи
@@ -89,23 +124,20 @@ void deleteAccount(std::vector<Account> &vectorAccounts,int indexDeleteAccount, 
 		auto end = vectorAccounts.cend();
 		vectorAccounts.erase(begin + indexDeleteAccount);
 		if (getAccept() && zapisAccount("-", "-", -1, vectorAccounts, true)) {
-			printMessage(5);
+			printMessage(1);
 		}
-	}
-	else {
-		printMessage(1);
 	}
 }
 
 
-
+//режим работы с аккаунтами
 void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) {
 	bool isRunUchZap = true;
 	while (isRunUchZap) {
 		int vibor;
-		std::cout << "Выберите пункт меню:\n1.Просмотр всех учётных записей\n2.Добавление учётной записи\n3.Редактирование учётной записи\n4.Удаление учётной записи\n0.Назад\n";
-		std::cin >> vibor;
+		vibor = inputInt(7,2);
 		switch (vibor) {
+		case -1: return;
 		case 0: return;
 		case 1:
 		{
@@ -116,26 +148,30 @@ void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) 
 		case 2:
 		{
 			printShapka(12);
-			vectorAccounts = inputNewAccountData(false);
+			vectorAccounts = inputNewAccountData(vectorAccounts,false);
 			break;
 		}
 		case 3:
 		{
 			printShapka(6);
-			changeAccount(vectorAccounts, printAccIndex());
+			changeAccount(vectorAccounts, inputAccIndex());
 			break;
 		}
 		case 4:
 		{
 			printShapka(7);
-			deleteAccount(vectorAccounts, printAccIndex(), accountIndex);
+			deleteAccount(vectorAccounts,inputAccIndex(), accountIndex);
+		}
+		case 5: {
+			printAccInfo(vectorAccounts);
+			break;
 		}
 		}
 	}
 }
 
 
-
+//режим обработки данных
 void processMode() {
 	int vibor;
 	
@@ -143,7 +179,7 @@ void processMode() {
 	bool isRunPM = true;
 	while (isRunPM) {
 		printShapka(14);
-		vibor = inputInt("Выберите один из вариантов:\n1.Покупка билета (инд.задание)\n2.Поиск\n3.Сортировка\n0.Назад");
+		vibor = inputInt(8,2);
 		switch (vibor) {
 		case 0: return;
 		case 1: {
@@ -163,6 +199,10 @@ void processMode() {
 			sortTicket(ticketList);
 			break;
 		}
+		case 4: {
+			printTicketInfo(ticketList);
+			break;
+		}
 		}
 	}
 }
@@ -174,7 +214,7 @@ void editMode() {
 	std::vector<Ticket> ticketList = getTickets();
 	while (true) {
 		printShapka(10);
-		vibor = inputInt("Выберите один из вариантов:\n1.Просмотр\n2.Добавление\n3.Редактирование\n4.Удаление\n0.Назад");
+		vibor = inputInt(9,2);
 		switch (vibor) {
 		case 0: return;
 		case 1: {
@@ -184,28 +224,30 @@ void editMode() {
 		}
 		case 2: {
 			printShapka(9);
-			if (addZapis(ticketList))printMessage(6);
+			if (addNewZapis(ticketList))printMessage(2);
 			break;
 		}
 		case 3: {
 			printShapka(10);
-			if(editZapis(ticketList))printMessage(7);
+			if(editZapis(ticketList))printMessage(3);
 			break;
 		}
 		case 4: {
 			printShapka(8);
-			if (deleteZapis(ticketList))printMessage(5);
+			if (deleteZapis(ticketList))printMessage(1);
 			break;
 		}
 		}
 	}
 }
 
+
+//функция выбора режима
 void chooseMode() {
 	int viborMode = 0;
 	while (true) {
 		printShapka(16);
-		viborMode = inputInt("Выберите режим:\n1.Режим редактирования\n2.Режим обработки\n0.Назад");
+		viborMode = inputInt(10,2);
 		switch (viborMode) {
 		case 0: return;
 		case 1: {
@@ -221,12 +263,14 @@ void chooseMode() {
 }
 
 
-//запуск меню администратора
-int startAdministrator(std::vector<Account> &vectorAccounts, int accountIndex) {
+
+
+//реализую метод startAdminMenu
+bool Administrator::startAdminMenu(std::vector<Account>&vectorAccounts, int accountIndex) {
 	int vibor;
 	printShapka(1);
 	while (true) {
-		vibor = inputInt("Выберите пункт меню:\n1.Работа с учётными записями\n2.Работа с данными\n0.Выход");
+		vibor = inputInt(11, 2);
 		switch (vibor) {
 		case 0:return 1;
 		case 1:
@@ -242,4 +286,12 @@ int startAdministrator(std::vector<Account> &vectorAccounts, int accountIndex) {
 		}
 	}
 	return 0;
+}
+
+
+//запуск меню администратора
+int startAdministrator(std::vector<Account> &vectorAccounts, int accountIndex) {
+	Administrator admin;
+	admin.startAdminMenu(vectorAccounts, accountIndex);
+	return 1;
 }

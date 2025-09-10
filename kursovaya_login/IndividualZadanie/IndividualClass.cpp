@@ -1,5 +1,11 @@
 #include<iostream>
 #include <nlohmann/json.hpp>
+#include <sstream>
+#include <chrono>
+
+
+
+
 
 
 class Ticket {
@@ -19,8 +25,26 @@ public:
 	Ticket() : raceNumber(0), samoletType(""), punktNaznacheniya(""), dateVilet(""), vremyaVilet(""),
 		vremyaPrilet(""), vmestimost(0), kolvoTicketBiznes(0), stoimostBiznes(0), kolvoTicketEkonom(0),
 		stoimostEkonom(0) {};
-	
+
 	~Ticket() {};
+
+	//метод вывода информации о тикете (полиморфизм)
+	void printSomeInfo() {
+		std::cout << "Это билет в " << punktNaznacheniya << ", отправка будет " << dateVilet << " в " << vremyaVilet << std::endl;
+	}
+
+	//метод проверки правильности введённого рейса
+	bool isCorrectRaceOption(int optionIndex) {
+		switch (optionIndex) {
+		case 1: { if (raceNumber >= 0 && raceNumber <= 999)return 1; }
+		case 7: { if (vmestimost >= 0 && vmestimost <= 999)return 1; }
+		case 8: { if (kolvoTicketBiznes >= 0 && kolvoTicketBiznes <= 999)return 1; }
+		case 9: { if (kolvoTicketEkonom >= 0 && kolvoTicketEkonom <= 999)return 1; }
+		case 10: { if (stoimostBiznes >= 0 && stoimostBiznes <= 9999)return 1; }
+		case 11: { if (stoimostEkonom >= 0 && stoimostEkonom <= 9999)return 1; }
+		}
+		return 0;
+	}
 
 	//метод изменения строковых параметров по индексу
 	void setParam(std::string strParam, int indexParam) {
@@ -36,7 +60,7 @@ public:
 	//метод изменения числовых параметров по индексу + перегрузка
 	void setParam(int intParam, int indexParam) {
 		switch (indexParam) {
-		case 1: { raceNumber = intParam; break; }
+		case -4: { raceNumber = intParam; break; }
 		case 2: { vmestimost = intParam; break; }
 		case 3: { kolvoTicketBiznes = intParam; break; }
 		case 4: { stoimostBiznes = intParam; break; }
@@ -46,7 +70,7 @@ public:
 	}
 
 
-	void printTicket(){
+	void printTicket() {
 		std::cout <<
 			"| " << std::setw(3) << raceNumber <<
 			" | " << std::left << std::setw(15) << samoletType <<
@@ -63,21 +87,138 @@ public:
 		printf("-------------------------------------------------------------------------------------------------------\n");
 	}
 
-	bool isValidTicket() {
-		if(raceNumber < 1000 && raceNumber>0 && samoletType.length() < 16 && samoletType.length() > 0
-			&& dateVilet.length() > 0 && dateVilet.length() < 11
-			&& vremyaPrilet.length() > 0 && vremyaPrilet.length() < 6
-			&& vremyaVilet.length() > 0 && vremyaVilet.length() < 6
-			&& vmestimost > -1 && vmestimost<1000
-			&& kolvoTicketBiznes>-1 && kolvoTicketBiznes<1000
-			&& kolvoTicketEkonom>-1 && kolvoTicketEkonom<1000
-			&& stoimostBiznes>-1 && stoimostBiznes<10000
-			&& stoimostEkonom>-1 && stoimostEkonom < 10000) {
+
+
+	//метод проверки, совпадает ли ведённый рейс с рейсом записи
+	bool isSimilarRace(int v_raceNumber) {
+		if (v_raceNumber == raceNumber) {
 			return true;
 		}
-		else { return false; }
+		return false;
 	}
 
+	//метод проверки, есть ли введённый тип самолёта в записи
+	bool isSimilarSamoletType(std::string v_samoletType) {
+		if (samoletType.find(v_samoletType) != -1) {
+			return 1;
+		}
+		return 0;
+	}
+
+	//метод проверки, есть ли введённый пункт назначения в записи
+	bool isSimilaPunktNaznach(std::string v_punktNaznach) {
+		if (punktNaznacheniya.find(v_punktNaznach) != -1) {
+			return 1;
+		}
+		return 0;
+	}
+
+	//метод сравнения указанной цены с ценой в записи, sravnenie == 1 - больше, == 2 - меньше
+	int sravnenieCen(int sravnenie, int summa, int typeClass) {
+		if(sravnenie ==1){
+			if (typeClass == 1) {
+				return summa > stoimostBiznes;
+			}
+			else if(typeClass == 2) {
+				return summa > stoimostEkonom;
+			}
+			else if (typeClass == 3) {
+				return summa > stoimostEkonom || summa > stoimostBiznes;
+			}
+		}
+		else if (sravnenie == 2) {
+			if (typeClass == 1) {
+				return summa < stoimostBiznes;
+			}
+			else if(typeClass==2){
+				return summa < stoimostEkonom;
+			}
+			else if (typeClass == 3) {
+				return summa < stoimostEkonom || summa < stoimostBiznes;
+			}
+		}
+		return -1;
+	}
+
+	//СОРТИРОВКА
+	//СОРТИРОВКА
+	//геттер для сортировки
+	int getIntSortParam(int paramIndex) {
+		switch (paramIndex) {
+		case 1: { return stoimostBiznes; }//получение стоимости бизнес класса
+		case 2: { return stoimostEkonom; }//получение стоимости эконом класса
+		case 3: { return kolvoTicketBiznes; }//получение количества билетов бизнес класса
+		case 4: { return kolvoTicketEkonom; }//получение количества билетов эконом класса
+		case 5: { return raceNumber; }
+		}
+		return -1;
+	}
+
+
+	//метод проверки формата времени
+	bool isTrueFormatVremya(int whatVremya) {//1 - время вылета, 2 - время прилёта
+		std::tm tm = {};
+		std::stringstream ss1(vremyaVilet);
+		std::stringstream ss2(vremyaPrilet);
+		ss1 >> std::get_time(&tm, "%H:%M");
+		ss2 >> std::get_time(&tm, "%H:%M");
+		if (whatVremya == 1) {
+			if (ss1.fail()) {
+				return 0;
+			}
+			else {
+				return 1;
+			}
+		}
+		else{
+			if (ss2.fail()) {
+				return 0;
+			}
+			else {
+				return 1;
+			}
+		}
+
+	}
+
+	//метод проверки формата даты
+	bool isTrueFormatDate() {
+		std::stringstream ss(dateVilet);
+		std::chrono::year_month_day ymd;
+		if (ss >> std::chrono::parse("%d.%m.%Y", ymd) && ymd.ok() && ss.eof()) {
+			return 1;
+		}
+		else { return 0; }
+
+	}
+
+	//метод покупки билетов
+	bool buyTickets(int kolvoTickets, int classType) {
+		switch (classType) {
+		case 1: { kolvoTicketBiznes -= kolvoTickets; return 1; }
+		case 2: { kolvoTicketEkonom -= kolvoTickets; return 1; }
+		}
+		return 0;
+	}
+
+
+	//метод проверки количества билетов
+	bool isValidTicketKolvo(int kolvoTicket, int classType) {
+		if (classType==1 && kolvoTicketBiznes >= kolvoTicket) {
+			return 1;
+		}
+		else if (classType==0 && kolvoTicketEkonom >= kolvoTicket){
+			return 1;
+		}
+		return 0;
+	}
+
+	//метод получения количества билетов
+	int getKolvoTickets(int classType) {
+		if (classType == 1) { return kolvoTicketBiznes; }
+		else if (classType == 2) { return kolvoTicketEkonom; }
+		else { return -1; }
+	}
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Ticket, raceNumber, samoletType, punktNaznacheniya, dateVilet, vremyaVilet,
 		vremyaPrilet, vmestimost, kolvoTicketBiznes, stoimostBiznes, kolvoTicketEkonom,

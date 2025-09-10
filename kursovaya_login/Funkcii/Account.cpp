@@ -1,8 +1,7 @@
-
+#include <iostream>
 #include<string>;
-
+#include "sha256.h" //взял библиотеку https://create.stephan-brumme.com/hash-library/ для хеширования
 #include <nlohmann/json.hpp>
-//#include "../libs/json/include/nlohmann/json.hpp"
 
 class Account {
 private:
@@ -26,9 +25,10 @@ public:
 	}
 	//метод установки строковых параметров по индексу
 	void setParam(std::string strParam, int indexParam) {
+		SHA256 sha256;
 		switch (indexParam) {//выбор параметра для изменения
 		case 1: { login = strParam; break; }
-		case 2: { password = strParam; break; }
+		case 2: { password = sha256(strParam+sault); break; }
 		case 3: { sault = strParam; break; }
 		}
 	}
@@ -39,25 +39,6 @@ public:
 		}
 	}
 
-	//метод получения строковых параметров по индексу
-	std::string getStrParam(int indexParam) {
-		switch (indexParam) {//выбор параметра для изменения
-		case 1: { return login; }
-		case 2: { return password; }
-		case 3: { return sault; }
-		}
-		return "-";
-	}
-
-	//метод получения числовых параметров
-	int getIntParam(int indexParam) {
-		switch (indexParam) {//выбор параметра для изменения
-		case 1: { return role; }
-		}
-		return -1;
-	}
-
-
 	//метод установки числовых параметров по индексу + перегрузка
 	int setParam(int indexParam) {
 		switch (indexParam) {
@@ -65,6 +46,63 @@ public:
 		}
 		return -1;
 	}
+
+	//метод вывода строки таблицы пользователей
+	void printTable(int i) {
+		std::cout <<
+			"| " << std::left << std::setw(3) << i <<
+			" | " << std::left << std::setw(15) << login <<
+			" | " << std::left << std::setw(64) << password <<
+			" | " << std::left << std::setw(10) << sault <<
+			" | " << std::left << std::setw(4) << role << " |\n";
+	}
+
+	//метод проверки, совпадает ли введённый пароль с настоящим
+	bool isSimilarPass(std::string v_password) {
+		SHA256 sha256;
+		if (sha256(v_password+sault) == password) {
+			return true;
+		}
+		return false;
+	}
+
+	//метод проверки, совпадает ли введённый логин с логином записи
+	bool isSimilarLogin(std::string v_login) {
+		if (v_login == login) {
+			return true;
+		}
+		return false;
+	}
+
+	//метод сравнения ролей
+	bool getRole() {
+		return role;
+	}
+	//метод вывода информации об аккаунте
+	void printSomeInfo() {
+		std::cout << "\nЛогин: " << login << "\nПароль: " << password << "\nРоль:" << role << "\nСоль:" << sault <<std::endl;
+	}
+
 	~Account(){}
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Account, login, password, sault, role) //чтобы можно было преобразовать json строки в объекты типа класса
 };
+
+
+
+//просто создаю классы для примера наследования с пустыми методами, которые потом реализую
+class User : Account {
+private:
+	std::string login;
+	std::string password;
+public:
+	bool startUserMenu();
+};
+
+class Administrator : Account {
+private:
+	std::string login;
+	std::string password;
+public:
+	bool startAdminMenu(std::vector<Account>& vectorAccounts, int accountIndex);
+};
+

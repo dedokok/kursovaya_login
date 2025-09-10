@@ -13,18 +13,6 @@
             "sault": "WJHKKeiyAN"
         },
         {
-            "login": "-",
-            "password": "50293fb2fa3d4f925ce3ab8b69ed17613b403c8afb851109e2fae15c0d42fb9a",
-            "role": 1,
-            "sault": "MagZLcmvKh"
-        },
-        {
-            "login": "dedokok2",
-            "password": "139bb6fa138501bcdcc0228274f9a713e267834f1dfe28b1b57e18a5d89a7192",
-            "role": 0,
-            "sault": "tQJBEjPYZB"
-        },
-        {
             "login": "SUperIdol",
             "password": "d910780cad9eded892b03064c5b7a073c10c8b640d01e8700e71d7172b11a610",
             "role": 1,
@@ -41,6 +29,30 @@
             "password": "8d86b7d024ac92c9d2e26c0180901720b5b94efb1915be96ef1d68568143480c",
             "role": 1,
             "sault": "mqkzRoJBmg"
+        },
+        {
+            "login": "deddok",
+            "password": "e82d36dae59bdb89897d172fa6a3110e4c586c1f7511c8335a163a9364bdd713",
+            "role": 1,
+            "sault": "pFwDARqUNa"
+        },
+        {
+            "login": "dedddok",
+            "password": "eb648918e9be3d79b55ffa646988fc3f08dc22822d90294df2d368bf656e7662",
+            "role": 1,
+            "sault": "KnLePZWyFg"
+        },
+        {
+            "login": "lololo",
+            "password": "241e43e2a1a457b534617d1321267c88d939f4a0972dd56d0164734a350f97e8",
+            "role": 1,
+            "sault": "idtoOpXVeI"
+        },
+        {
+            "login": "de",
+            "password": "6b8a9cc5f8439c3d107b1d028ca369438b8a8001072e117dd5945279855b512e",
+            "role": 1,
+            "sault": "njGZqRhzgw"
         }
     ]
 }

@@ -15,13 +15,12 @@ int main()
     std::vector<Account> vectorAccounts = getAccounts();
     while (isRun) {
         if (accountIndex!=-1) {
-            role = vectorAccounts[accountIndex].getIntParam(1);
             int vibor;
-            if (role == 0) {
-                startPolzovatel() == 1;
+            if (vectorAccounts[accountIndex].getRole()==0) {
+                startPolzovatel();
             }
-            else if (role == 1) {
-                startAdministrator(vectorAccounts, accountIndex) == 1;
+            else if (vectorAccounts[accountIndex].getRole() == 1) {
+                startAdministrator(vectorAccounts, accountIndex);
             }
             return 0;
         }

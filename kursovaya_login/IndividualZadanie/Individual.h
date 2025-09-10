@@ -7,14 +7,14 @@
 
 std::vector<Ticket> getTickets();
 
-bool addZapis(std::vector<Ticket>& ticketList);
+bool addNewZapis(std::vector<Ticket>& ticketList);
 bool editZapis(std::vector<Ticket>& ticketList);
 bool deleteZapis(std::vector<Ticket>& ticketList);
 bool zapisTickets(std::vector<Ticket>& ticketList);
-
-int  buyTicket(std::vector<Ticket> &ticketList);
+bool buyTicket(std::vector<Ticket> &ticketList);
 
 void poiskTicket(std::vector<Ticket>& ticketList);
 void sortTicket(std::vector<Ticket> ticketList);
 void printShapkaProsmotr();
 void printTickets(std::vector<Ticket>& ticketList, int startI, int kolvoPrint);
+void printTicketInfo(std::vector<Ticket>& ticketList);

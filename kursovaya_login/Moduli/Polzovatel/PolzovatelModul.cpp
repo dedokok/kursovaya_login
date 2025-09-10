@@ -1,14 +1,16 @@
 #include "PolzovatelModul.h";
 
 
-//запуск меню пользователя
-int startPolzovatel() {
-	
+
+
+
+
+bool User::startUserMenu() {
 	int vibor;
 	std::vector<Ticket> ticketList = getTickets();
 	while (true) {
 		printShapka(2);
-		vibor = inputInt("Выберите пункт меню:\n1.Просмотр\n2.Покупка билета (инд. задание)\n3.Поиск\n4.Сортировка\n0.Выход\n");
+		vibor = inputInt(12, 2);
 		switch (vibor) {
 		case 0: return 1;
 		case 1: {
@@ -30,7 +32,19 @@ int startPolzovatel() {
 			sortTicket(ticketList);
 			break;
 		}
+		case 5: {
+			printTicketInfo(ticketList);
+			break;
+		}
 		}
 	}
+	return 1;
+}
+
+
+//запуск меню пользователя
+int startPolzovatel() {
+	User user;
+	if (user.startUserMenu()) { return 1; }
 	return 0;
 }

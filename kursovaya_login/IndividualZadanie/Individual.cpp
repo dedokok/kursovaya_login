@@ -20,52 +20,30 @@ void printTickets(std::vector<Ticket> &ticketList, int startI, int kolvoPrint) {
 }
 
 
-//Функция проверки формата времени
-bool isTrueFormatVremya(std::string vremya) {
-	std::tm tm = {};
-	std::stringstream ss(vremya);
-	ss >> std::get_time(&tm, "%H:%M");
-	if (ss.fail()) {
-		std::cout << "Неверный формат времени" << std::endl;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-
-
-//функция проверки формата даты
-bool isTrueFormatDate(std::string date) {
-	std::tm tm = {};
-	std::stringstream ss(date);
-	ss >> std::get_time(&tm, "%d.%m.%Y");
-	if (ss.fail()) {
-		std::cout << "Неверный формат даты" << std::endl;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-
-
-//функция ввода номера рейса для покупки билета
-int getTicketRace() {
-	return inputInt("Введите номер рейса\n");
-}
-
 
 //функция получения индекса рейса в векторе по его номеру(рейса)
 int getRaceIndex(std::vector<Ticket>& ticketList, int ticketRace) {
 	for (int i = 0; i < ticketList.size(); i++) {
-		if (ticketList[i].getIntParam(1) == ticketRace) {
+		if (ticketList[i].isSimilarRace(ticketRace)){
 			return i;
 		}
 	}
 	return -1;
 }
 
+
+//метод получения информации о билете (полиморфизм)
+void printTicketInfo(std::vector<Ticket>& ticketList) {
+	int ticketRace = inputInt(9, 1);
+	int ticketIndex = getRaceIndex(ticketList,ticketRace);
+	if (ticketIndex != -1) {
+		Ticket ticket = ticketList[ticketIndex];
+		printSomeInfo(ticket);//шаблон, полиморфизм
+	}
+	else {
+		printErrorMessage(2);
+	}
+}
 
 //функция записи аккаунта в файл
 bool zapisTickets(std::vector<Ticket>& ticketList) {
@@ -104,113 +82,103 @@ std::vector<Ticket> getTickets() {
 //функция проверки, если ли уже такой рейс
 bool checkRace(int ticketRaceNumber, std::vector<Ticket>& ticketList) {
 	for (int i = 0; i < ticketList.size(); i++) {
-		if (ticketList[i].getIntParam(1) == ticketRaceNumber) {
-			printMessage(4);
+		if (ticketList[i].isSimilarRace(ticketRaceNumber)) {
+			printErrorMessage(1);
 			return 0;
 		}
 	}
 	return 1;
 }
 
-
-//функция проверки длины значений
-bool checkDlina(Ticket &ticket) {
-	if (ticket.isValidTicket()) {
+//функция проверки правильности поля
+bool isTruePole(int viborEdit, std::vector<Ticket>& ticketList, Ticket& ticket) {
+	if ((viborEdit==1 || viborEdit==7 || viborEdit == 8 || viborEdit == 10) && !ticket.isCorrectRaceOption(viborEdit)){
+		if (viborEdit == 1 && getRaceIndex(ticketList, ticket.getIntSortParam(5)) != -1) {
+			printErrorMessage(1);
+			return 0;
+		}
 		return 1;
+
 	}
-	else {
-		ticket.setParam(-1,1);
-		return 0;
-	}
+	printErrorMessage(viborEdit + 9); return 0;
 	return 0;
 }
 
+
 //функция ввода значений новой записи. Switch, потому что при вызове из editZapis нужно изменить только 1 поле, а не сразу все
 bool inputZapis(Ticket& ticket, std::vector<Ticket>& ticketList, int viborEdit) {
+
 	std::string new_data = "-";
-	switch (viborEdit) {
-	case 1: {
-		
-		if (!inputIntSsilka(1, "Введите номер рейса",ticket)) {
+	int new_data_int = -1;
+
+	if (viborEdit == 1 || (viborEdit >= 7 && viborEdit <= 11)) {
+		if (inputIntSsilka(viborEdit + 8, new_data_int, 1)) { ticket.setParam(new_data_int, viborEdit - 5); }
+		else {
+			printErrorMessage(viborEdit + 9); return 0;
+		}
+		if (!isTruePole(viborEdit, ticketList, ticket)) {
 			return 0;
 		}
-		else if (!checkRace(ticket.getIntParam(1), ticketList)) {
-			return 0;
-		}
-		break;
+		return 1;
 	}
-	case 2: {
-		inputStrSsilka(1, "Введите тип самолёта",ticket);
-		if (ticket.getStrParam(1).length() > 15) {
-			printMessage(1);
-			ticket.setParam(-1,1);
+
+
+	if ((viborEdit >= 2 && viborEdit <= 6)) {
+		if (inputStrSsilka(viborEdit + 8, new_data, 1)) {
+			ticket.setParam(new_data, viborEdit - 1);
+		}
+		else { printErrorMessage(viborEdit + 9); return 0; }
+		if (viborEdit == 4 && !ticket.isTrueFormatDate()) { printErrorMessage(viborEdit + 9); return 0; }
+		if (viborEdit == 5 && !ticket.isTrueFormatVremya(1)) { printErrorMessage(viborEdit + 9); return 0; }
+		if (viborEdit == 6 && !ticket.isTrueFormatVremya(2)) { printErrorMessage(viborEdit + 9); return 0; }
+		return 1;
+	}
+
+}
+
+
+//функция вызова ввода новых данных в запись по ссылке
+bool inputNewData(Ticket &ticket, std::vector<Ticket> ticketList) {
+	for (int i = 1; i < 12; i++) {
+		if (!inputZapis(ticket, ticketList, i)) {
 			return 0;
 		}
-		break;
-	}
-	case 3: { inputStrSsilka(2,"Введите пункт назначения (латиницей)",ticket); break; }
-	case 4: { inputStrSsilka(3,"Введите день вылета", ticket); break; }
-	case 5: { inputStrSsilka(4,"Введите время вылета", ticket); break; }
-	case 6: { inputStrSsilka(5,"Введите время прилёта", ticket); break; }
-	case 7: { if (!inputIntSsilka(2, "Введите вместимость самолёта",ticket)) { return 0; } break; }
-	case 8: { if (!inputIntSsilka(3, "Введите количество билетов бизнес класса", ticket)) { return 0; } break; }
-	case 9: { if (!inputIntSsilka(4, "Введите стоимость билета бизнес класса", ticket)) { return 0; } break; }
-	case 10: { if (!inputIntSsilka(5, "Введите количество билетов эконом класса", ticket)) { return 0; } break; }
-	case 11: { if (!inputIntSsilka(6,"Введите стоимость билета эконом класса", ticket)) { return 0; } break; }
 	}
 	return 1;
 }
 
 
-//функция добавления новой записи
-bool addZapis(std::vector<Ticket> &ticketList) {
-	printShapka(9);
+//функция создания новой записи
+bool addNewZapis(std::vector<Ticket>& ticketList) {
 	Ticket ticket;
-	for (int i = 1; i < 12; i++) {
-		if (!inputZapis(ticket, ticketList,i)) {
-			return 0;
+	bool isTrue = inputNewData(ticket, ticketList);
+	if (isTrue) {
+		ticketList.push_back(ticket);
+		if (zapisTickets(ticketList)) {
+			return 1;
 		}
 	}
-	if (checkDlina(ticket)&& isTrueFormatVremya(ticket.getStrParam(4))
-		&& isTrueFormatVremya(ticket.getStrParam(5))&&isTrueFormatDate(ticket.getStrParam(3))) {
-		ticketList.push_back(ticket);
-		zapisTickets(ticketList);
-	}
-	else { printMessage(1); return 0; }
-	return 1;
+	return false;
 }
 
 
 //функция редактирования
 bool editZapis(std::vector<Ticket>& ticketList) {
-	int ticketRace = getTicketRace();
+	int ticketRace = inputInt(9, 1);
 	int indexRaceInVector = getRaceIndex(ticketList, ticketRace);
 	if (indexRaceInVector != -1) {
-		std::cout << "Выберите, что изменить:\n" <<
-			"1.Номер рейса\n" <<
-			"2.Тип самолёта\n" <<
-			"3.Пункт назначения\n" <<
-			"4.Дата вылета\n" <<
-			"5.Время вылета\n" <<
-			"6.Время прилёта\n" <<
-			"7.Вместимость самолёта\n" <<
-			"8.Количество билетов бизнес класса\n" <<
-			"9.Стоимость билета бизнес класса\n" <<
-			"11.Количество билетов эконом класса\n" <<
-			"12.Стоимость билета эконом класса\n" <<
-			"0.Назад\n";
-		int viborEdit = inputInt("");
+		int viborEdit = inputInt(13,2);
 		if (viborEdit == -1 || viborEdit==0) {
 			return 0;
 		}
 		Ticket ticket = ticketList[indexRaceInVector];
-		inputZapis(ticket, ticketList, viborEdit);
-		if (checkDlina(ticket) && isTrueFormatVremya(ticket.getStrParam(4))
-			&& isTrueFormatVremya(ticket.getStrParam(5)) && isTrueFormatDate(ticket.getStrParam(3))) {
-			ticketList.push_back(ticket);
+		if (!inputZapis(ticket, ticketList, viborEdit))return 0;
+		if (ticket.isTrueFormatVremya(1) && ticket.isTrueFormatVremya(2) && ticket.isTrueFormatDate()) {
+			//ticketList.push_back(ticket);
+			ticketList[indexRaceInVector] = ticket;
 			zapisTickets(ticketList);
 		}
-		else { printMessage(1); return 0; }
+		else { printErrorMessage(-1); return 0; }
 		return 1;
 	}
 	return 0;
@@ -219,7 +187,7 @@ bool editZapis(std::vector<Ticket>& ticketList) {
 
 //функция удаления записи
 bool deleteZapis(std::vector<Ticket>& ticketList) {
-	int ticketRace = getTicketRace();
+	int ticketRace = inputInt(9, 1);
 	int indexRaceInVector = getRaceIndex(ticketList, ticketRace);
 	auto begin = ticketList.cbegin();
 	try {
@@ -241,54 +209,59 @@ bool deleteZapis(std::vector<Ticket>& ticketList) {
 ////Сверху был режим редактирования, теперь будет режим обработки данных
 
 
+
+//функция ввода данных покупаемого билета
+bool inputBuyTicket(int& raceNumber, int& kolvoTickets, int& classType) {
+	raceNumber = inputInt(36,1);
+	kolvoTickets = inputInt(37,1);
+	classType = inputInt(38,1);
+	return 1;
+}
+
+//функция проверки правильности введённых данных покупаемого билета
+bool isValidBuyTicket(int& kolvoTickets, int& classType, int &indexRace) {
+	if (indexRace == -1 || kolvoTickets == -1 || classType == -1) {
+		printMessage(1);
+		return 0;
+	}
+	return 1;
+}
+
+//функция вывода количества билетов
+void printKolvoTickets(int classType, Ticket ticket) {
+	std::cout << ticket.getKolvoTickets(classType);
+}
+
 //функция покупки билета
-int buyTicket(std::vector<Ticket>& ticketList) {
+bool buyTicket(std::vector<Ticket>& ticketList) {
 	printShapka(5);
-	int ticketRace = inputInt("Введите номер рейса");
-	int indexRace = getRaceIndex(ticketList, ticketRace);
-	if (indexRace == -1) {
-		printMessage(1);
-		return -1;
-	}
-	int kolvoTicket = inputInt("Введите количество билетов\n");
-	if (kolvoTicket == -1) {
-		printMessage(1);
-		return -1;
-	}
-	int classType = inputInt("Введите класс билета : \n1.Бизнес\n2.Эконом\n");
-	if (classType == -1) {
-		printMessage(1);
-		return -1;
-	}
-	
+	int raceNumber, kolvoTickets, classType;
+	inputBuyTicket(raceNumber, kolvoTickets, classType);
+
+	int indexRace = getRaceIndex(ticketList, raceNumber);
+
+	Ticket ticket = ticketList[indexRace];
+
 	if (classType == 1) {
-		if (ticketList[indexRace].getIntParam(3) >= kolvoTicket) {
-			ticketList[indexRace].setParam(ticketList[indexRace].getIntParam(3)-kolvoTicket,3);
-			std::cout << "\nУспешная покупка!\n";
+		if (ticket.isValidTicketKolvo(kolvoTickets, 1) && ticket.buyTickets(kolvoTickets,1)) {
+			printMessage(12);
+			return 1;
 		}
-		else if (ticketList[indexRace].getIntParam(5) >= kolvoTicket) {
-			std::cout << "\nНа этот рейс нет нужного количества билетов бизнес класса" <<
-				"но есть билеты эконом класса в количестве " <<
-				ticketList[indexRace].getIntParam(5) << std::endl;
+		else if (ticket.isValidTicketKolvo(kolvoTickets, 2)) {
+			printErrorMessage(6);
+			printKolvoTickets(2, ticket);
 		}
-		else {
-			std::cout << "\nНа этот рейс нет нужного количеста билетов!\n";
-		}
-		return 1;
 	}
+
 	else if (classType == 2) {
-		if (ticketList[indexRace].getIntParam(5) >= kolvoTicket) {
-			ticketList[indexRace].setParam(ticketList[indexRace].getIntParam(5)-kolvoTicket,5);
+		if (ticket.isValidTicketKolvo(kolvoTickets, 2) && ticket.buyTickets(kolvoTickets, 2)) {
+			printMessage(12);
+			return 1;
 		}
-		else if (ticketList[indexRace].getIntParam(3) >= kolvoTicket) {
-			std::cout << "\nНа этот рейс нет нужного количества билетов эконом класса" <<
-				"но есть билеты бизнес класса в количестве " <<
-				ticketList[indexRace].getIntParam(3) << std::endl;
+		else if (ticket.isValidTicketKolvo(kolvoTickets, 1)) {
+			printErrorMessage(5);
+			printKolvoTickets(1, ticket);
 		}
-		else {
-			std::cout << "\nНа этот рейс нет нужного количеста билетов\n";
-		}
-		return 1;
 	}
 	else { printMessage(1); }
 	return -1;
@@ -300,12 +273,12 @@ void poiskSamoletType(std::vector<Ticket>& ticketList, std::string samoletType) 
 	printShapkaProsmotr();
 	int kolvoPoisk = 0;
 	for (int i = 0; i < ticketList.size(); i++) {
-		if (ticketList[i].getStrParam(1).find(samoletType) != -1) {
+		if (ticketList[i].isSimilarSamoletType(samoletType)){
 			printTickets(ticketList, i, i+1);
 			kolvoPoisk++;
 		}
 	}
-	if (kolvoPoisk == 0) { printMessage(9); }
+	if (kolvoPoisk == 0) { printErrorMessage(2); }
 }
 
 
@@ -314,12 +287,12 @@ void poiskPunktNaznach(std::vector<Ticket>& ticketList, std::string punktNaznach
 	printShapkaProsmotr();
 	int kolvoPoisk = 0;
 	for (int i = 0; i < ticketList.size(); i++) {
-		if (ticketList[i].getStrParam(2).find(punktNaznach) != -1) {
+		if (ticketList[i].isSimilaPunktNaznach(punktNaznach)) {
 			printTickets(ticketList, i, i + 1);
 			kolvoPoisk++;
 		}
 	}
-	if (kolvoPoisk == 0) { printMessage(9); }
+	if (kolvoPoisk == 0) { printErrorMessage(2); }
 }
 
 
@@ -328,59 +301,55 @@ void poiskTicketPrice(std::vector<Ticket>& ticketList,int classType, int sravnen
 	printShapkaProsmotr();
 	int kolvoPoisk = 0;
 	for (int i = 0; i < ticketList.size(); i++) {
-		if (classType == 1 && sravnenie == 1 && ticketList[i].getIntParam(4) > summa) {
+		Ticket t = ticketList[i];
+		if (t.sravnenieCen(1,summa,1)) {
 			printTickets(ticketList, i, i + 1);
 			kolvoPoisk++;
 		}
-		else if (classType == 1 && sravnenie == 2 && ticketList[i].getIntParam(4) < summa) {
+		else if (t.sravnenieCen(2, summa, 1)) {
 			printTickets(ticketList, i, i + 1);
 			kolvoPoisk++;
 		}
-		else if (classType == 2 && sravnenie == 1 && ticketList[i].getIntParam(6) > summa) {
+		else if (t.sravnenieCen(1, summa, 2)) {
 			printTickets(ticketList, i, i + 1);
 			kolvoPoisk++;
 		}
-		else if (classType == 2 && sravnenie == 2 && ticketList[i].getIntParam(6) < summa) {
+		else if (t.sravnenieCen(2, summa, 2)) {
 			printTickets(ticketList, i, i + 1);
 			kolvoPoisk++;
 		}
-		else if (classType == 3 && sravnenie == 1 && (ticketList[i].getIntParam(4) > summa || ticketList[i].getIntParam(6) > summa)) {
+		else if (t.sravnenieCen(3,summa,1)) {
 			printTickets(ticketList, i, i + 1);
 			kolvoPoisk++;
 		}
-		else if (classType == 3 && sravnenie == 2 && (ticketList[i].getIntParam(4) < summa || ticketList[i].getIntParam(6) < summa)) {
+		else if (t.sravnenieCen(3, summa, 2)) {
 			printTickets(ticketList, i, i + 1);
 			kolvoPoisk++;
 		}
 	}
-	if (kolvoPoisk == 0) { printMessage(9); }
+	if (kolvoPoisk == 0) { printErrorMessage(2); }
 }
 
 
 //функция выбора типа поиска
 void poiskTicket(std::vector<Ticket>& ticketList) {
-	std::cout << "Введите, по какому полю будете искать:\n" <<
-		"1. Тип самолёта\n" <<
-		"2. Пункт назначения\n" <<
-		"3. Стоимость билета\n" <<
-		"0. Назад\n";
-	int viborPoisk = inputInt("");
+	int viborPoisk = inputInt(2,2);
 	switch (viborPoisk) {
 	case 0: return;
 	case 1: {
-		poiskSamoletType(ticketList,inputStr("Введите пункт назначения"));
+		poiskSamoletType(ticketList,inputStr(35,1));
 		break;
 	}
 	case 2: {
-		poiskPunktNaznach(ticketList, inputStr("Введите пункт назначения"));
+		poiskPunktNaznach(ticketList, inputStr(27,1));
 		break;
 	}
 	case 3: {
-		int classType = inputInt("Введите, в каком классе искать\n1.Бизнес\n 2.Эконом\n3.Во всех\n0.Назад");
+		int classType = inputInt(3,2);
 		if (classType == -1) { return; }
-		int sravnenie = inputInt("Введите, больше или меньше какой-то цены\n1.Больше\n2.Меньше\n0.Назад\n");
+		int sravnenie = inputInt(4,2);
 		if (sravnenie == -1) { return; }
-		int summa = inputInt("Укажите цену");
+		int summa = inputInt(39,1);
 		if (summa == -1) { return; }
 		poiskTicketPrice(ticketList, classType, sravnenie, summa);
 		break;
@@ -391,7 +360,7 @@ void poiskTicket(std::vector<Ticket>& ticketList) {
 
 //компаратор для сортировки по стоимости бизнес класса
 bool compareSortBiznesPrice(Ticket& a, Ticket& b) {
-	return a.getIntParam(4) < b.getIntParam(4);
+	return a.getIntSortParam(1) < b.getIntSortParam(1);
 }
 //сортировка по стоимости бизнес класса
 void sortBiznesPrice(std::vector<Ticket> &ticketList) {
@@ -402,7 +371,7 @@ void sortBiznesPrice(std::vector<Ticket> &ticketList) {
 
 //компаратор для сортировки по стоимости эконом класса
 bool compareSortEkonomPrice(Ticket& a, Ticket& b) {
-	return a.getIntParam(6) < b.getIntParam(6);
+	return a.getIntSortParam(2) < b.getIntSortParam(2);
 }
 //сортировка по стоимости эконом класса класса
 void sortEkonomPrice(std::vector<Ticket> &ticketList) {
@@ -413,7 +382,7 @@ void sortEkonomPrice(std::vector<Ticket> &ticketList) {
 
 //компаратор для сортировки по колву бизнес
 bool compareSortKolvoBiznes(Ticket& a, Ticket& b) {
-	return a.getIntParam(3) < b.getIntParam(3);
+	return a.getIntSortParam(3) < b.getIntSortParam(3);
 }
 //сортировка по колву бизнес
 void sortKolvoBiznes(std::vector<Ticket>& ticketList) {
@@ -423,7 +392,7 @@ void sortKolvoBiznes(std::vector<Ticket>& ticketList) {
 
 //компаратор для сортировки по колву эконом
 bool compareSortKolvoEkonom(Ticket& a,Ticket& b) {
-	return a.getIntParam(5) < b.getIntParam(5);
+	return a.getIntSortParam(4) < b.getIntSortParam(4);
 }
 //сортировка по колву эконом
 void sortKolvoEkonom(std::vector<Ticket>& ticketList) {
@@ -433,13 +402,7 @@ void sortKolvoEkonom(std::vector<Ticket>& ticketList) {
 
 //функция выбора сортировки
 void sortTicket(std::vector<Ticket> ticketList) {
-	std::cout << "Выберите, по чём сортировать:\n"<<
-		"1.Цене билетов бизнес класса\n"<<
-		"2.Цене билетов эконом класса\n"<<
-		"3.Количеству билетов бизнес класса\n"<<
-		"4.Количеству билетов эконом класса\n"<<
-		"0.Назад\n";
-	int viborSort = inputInt("");
+	int viborSort = inputInt(5,2);
 	if (viborSort == 0) { return; }
 	printShapkaProsmotr();
 	switch (viborSort) {
