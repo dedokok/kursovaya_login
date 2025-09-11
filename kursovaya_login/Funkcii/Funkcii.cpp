@@ -1,11 +1,8 @@
 #include "Funkcii.h"
 
 //прототипы функций
-std::string saultGen();
-void isThereBD();
-int checkLogin(std::string v_login, std::string v_password, std::vector<Account>& vectorAccounts);
-std::vector<Account> getAccounts();
-bool zapisAccount(std::string login, std::string password, int role, std::vector<Account>& vectorAccounts, bool isChange);
+//bool zapisAccount(std::string login, std::string password, int role, std::vector<Account>& vectorAccounts, bool isChange);
+
 
 //функция вывода шапки
 void printShapkaAccounts() {
@@ -15,25 +12,26 @@ void printShapkaAccounts() {
 	printf("----------------------------------------------------------------------------------------------------------------\n");
 }
 
+
 //функция вывода аккаунтов
 void printAccounts(std::vector<Account>& vectorAccounts, int startI, int kolvoPrint) {
 	if (kolvoPrint == -1) { kolvoPrint = vectorAccounts.size(); }
 	for (int i = startI; kolvoPrint - i > 0; i++) {
 		Account acc = vectorAccounts[i];
 		acc.printTable(i);
-		printf("----------------------------------------------------------------------------------------------------------------\n");
 	}
 }
 
 
+//функция вывода сообщений об ошибке
 void printErrorMessage(int messageCode) {
 	std::string message = "Ошибка!\n";
 	switch (messageCode) {
 	case 1: { message = "Такой рейс уже есть!\n\n"; break; }
 	case 2: { message = "Ничего не найдено\n\n"; break; }
-	case 3: { message = "\nСлишком длинный ник (максимум 15 букв)!\n\n"; break; }
+	case 3: { message = "\nСлишком длинная строка (максимум 15 букв)!\n\n"; break; }
 	case 4: { message = "\nТакой аккаунт уже существует!\n\n"; break; }
-	case 5: { message = "На данный рейс нет такого количества билетов, но есть билеты бизнес класса в количестве"; break; }
+	case 5: { message = "На данный рейс нет такого количества билетов, но есть билеты бизнес класса в количестве "; break; }
 	case 6: { message = "На данный рейс нет такого количества билетов, но есть билеты эконом класса в количестве "; break; }
 	case 7: { message = "Не удалось войти\n"; break; }
 	case 8: { message = "Неправильная роль!\n"; break; }
@@ -41,14 +39,23 @@ void printErrorMessage(int messageCode) {
 	case 10: { message = "Неправильное значение рейса (минимум 0, максимум 999)\n"; break; }
 	case 11: { message = "Неправильный тип самолёта(максимум 15, латиница)\n"; break; }
 	case 12: { message = "Неправильный пункт назначения(максимум 15, латиница)\n"; break; }
-	case 13: { message = "Неправильный формат даты (надо dd.mm.yyyy)\n"; break; }
-	case 14: { message = "Неправильный формат времени вылета(надо HH:MM:SS)\n"; break; }
-	case 15: { message = "Неправильный формат времени прилёта(надо HH:MM:SS)\n"; break; }
+	case 13: { message = "Неправильная дата (надо dd.mm.yyyy)\n"; break; }
+	case 14: { message = "Неправильное время вылета(надо HH:MM:SS)\n"; break; }
+	case 15: { message = "Неправильное время прилёта(надо HH:MM:SS)\n"; break; }
 	case 16: { message = "Неправильная вместимость(мин.0, макс. 999)\n"; break; }
 	case 17: { message = "Неправильное количество билетов бизнес класса(мин. 0, макс. 999)\n"; break; }
-	case 18: { message = "Неправильное количество билетов эконом класса(мин. 0, макс. 999)\n"; break; }
-	case 19: { message = "Неправильная цена билета бизнес класса(мин. 0, макс. 9999)\n"; break; }
+	case 18: { message = "Неправильная цена билета бизнес класса(мин. 0, макс. 9999)\n"; break; }
+	case 19: { message = "Неправильное количество билетов эконом класса(мин. 0, макс. 999)\n"; break; }
 	case 20: { message = "Неправильная цена билета эконом класса(мин. 0, макс. 9999)\n"; break; }
+	case 21: { message = "На данный рейс нет такого количества билетов!\n"; break; }
+	case 22: { message = "Неправильное количество билетов(мин. 0, макс. 999)\n"; break; }
+	case 23: { message = "Неправильный класс билета\n"; break; }
+	case 24: { message = "Строку нужно писать латиницей!\n"; break; }
+	case 25: { message = "Нельзя удалять/менять роль своего аккаунта!\n"; break; }
+	case 26: { message = "Неправильный индекс аккаунта\n"; break; }
+	case 27: { message = "Нет такого варианта ответа\n"; break; }
+	case 28: { message = "Неправильный тип сравнения\n"; break; }
+	case 29: { message = "Неправильная цена билета\n"; break; }
 	}
 	std::cout << message;
 }
@@ -67,7 +74,7 @@ void printMessage(int messageCode) {
 	case 7: { message = "Введите пункт назначения (латиницей)\n"; break; }
 	case 8: { message = "Введите роль\n"; break; }
 	case 9: { message = "Введите номер рейса\n"; break; }
-	case 10: { message = "Введите тип самолёта\n"; break; }
+	case 10: { message = "Введите тип самолёта(латиницей)\n"; break; }
 	case 11: { message = "Введите пункт назначения (латиницей)\n"; break; }
 	case 12: { message = "Введите день вылета\n"; break; }
 	case 13: { message = "Введите время вылета\n"; break; }
@@ -78,25 +85,20 @@ void printMessage(int messageCode) {
 	case 18: { message = "Введите количество билетов эконом класса\n"; break; }
 	case 19: { message = "Введите стоимость билета эконом класса\n"; break; }
 	case 21: { message = "Введите количество билетов\n"; break; }
-	case 22: { message = "Введите класс билета : \n1.Бизнес\n2.Эконом\n"; break; }
-	case 23: { message = "Введите стоимость\n"; }
-	case 24: { message = "Введите новый логин\n"; break; }
-	case 25: { message = "Введите новый пароль\n"; break; }
+	case 22: { message = "Введите класс билета: \n1.Бизнес\n2.Эконом\n"; break; }
+	case 23: { message = "Введите стоимость\n"; break; }
+	case 24: { message = "Введите новый логин(латиницей)\n"; break; }
+	case 25: { message = "Введите новый пароль(от 0 до 15 символов включительно)\n"; break; }
 	case 26: { message = "Введите новую роль\n"; break; }
 	case 27: { message = "\nВы действительно хотите это сделать? (Y/n)\n"; break; }
 	case 28: { message = "Введите индекс нужной учётной записи\n"; break; }
 	case 29: { message = "Успешная отмена действия!\n"; break; }
-	case 30: { message = "Введите логин\n"; break; }
+	case 30: { message = "Введите логин(латиницей)\n"; break; }
 	case 31: { message = "Введите стоимость билета бизнес класса\n"; break; }
 	}
 	std::cout << message;
 }
 
-//функция получения какой-либо информации (полиморфизм)
-//template <class T>
-//void printSomeInfo(T const& p) {
-//	std::cout << p.printSomeInfo();
-//}
 
 //функция вывода сообщений при выборе из нескольких вариантов
 void printViborMessage(int messageCode) {
@@ -104,7 +106,7 @@ void printViborMessage(int messageCode) {
 	switch (messageCode) {
 	case 1: { message = "Введите класс билета : \n1.Бизнес\n2.Эконом\n"; break; }
 	case 2: { message = "Введите, по какому полю будете искать : \n1. Тип самолёта\n2. Пункт назначения\n3. Стоимость билета\n0. Назад\n"; break; }
-	case 3: { message = "Введите, в каком классе искать\n1.Бизнес\n 2.Эконом\n3.Во всех\n0.Назад\n"; break; }
+	case 3: { message = "Введите, в каком классе искать\n1.Бизнес\n2.Эконом\n3.Во всех\n0.Назад\n"; break; }
 	case 4: { message = "Введите, больше или меньше какой-то цены\n1.Больше\n2.Меньше\n0.Назад\n"; break; }
 	case 5: { message = "Выберите, по чём сортировать:\n1.Цене билетов бизнес класса\n2.Цене билетов эконом класса\n3.Количеству билетов бизнес класса\n4.Количеству билетов эконом класса\n0.Назад\n"; break;}
 	case 6: { message = "Что хотите сделать с аккаунтом?\n1. Изменить пароль\n2. Изменить логин\n3. Изменить роль\n4. Изменить соль\n0.Назад\n"; break; }
@@ -118,7 +120,6 @@ void printViborMessage(int messageCode) {
 	}
 	std::cout << message;
 }
-
 
 
 //функция вывода шапок
@@ -143,13 +144,19 @@ void printShapka(int shapkaIndex) {
 	}
 }
 
-//функция вывода
-void coutFunc(std::string message) {
-	std::cout << message;
+
+//функция проверки
+bool checkInt(std::string intStroka) {
+	for (int i = 0; i < intStroka.length(); i++) {
+		if (!isdigit(intStroka[i])) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 
-//функция ввода числа (1 - просто сообщения, 2 - сообщения при выборе)
+//функция ввода числа с проверкой (1 - просто сообщения, 2 - сообщения при выборе одного из вариантов, 3 - ошибка)
 int inputInt(int messCode, int messType) {
 	if (messType == 1) {
 		printMessage(messCode);
@@ -157,16 +164,13 @@ int inputInt(int messCode, int messType) {
 	else if (messType == 2) {
 		printViborMessage(messCode);
 	}
-	else if (messType == 3) {
-		printErrorMessage(messCode);
-	}
 	else { return -1; }
-	std::string inputedInt;
-	std::cin >> inputedInt;
-	try {
-		return std::stoi(inputedInt);
+	std::string inputtedInt;
+	std::cin >> inputtedInt;
+	if (checkInt(inputtedInt)) {
+		return std::stoi(inputtedInt);
 	}
-	catch (...) {
+	else{
 		printErrorMessage(-1);
 		return -1;
 	}
@@ -175,16 +179,18 @@ int inputInt(int messCode, int messType) {
 
 //функция проверки, правильно ли введена строка (нет ли плохих символов)
 bool checkCorrStr(std::string strokaForCheck) {
-	if (strokaForCheck.length() > 15 || strokaForCheck.length()<=0) { return 0; }
+	if (strokaForCheck.length() > 15 || strokaForCheck.length() <= 0) { printErrorMessage(3); return 0; }
 	for (int i = 0; i < strokaForCheck.length(); i++) {
 		if (strokaForCheck[i] < 0) {
+			printErrorMessage(24);
 			return 0;
 		}
 	}
 	return 1;
 }
 
-//функция ввода числа по ссылке
+
+//функция ввода числа по ссылке с проверкой
 bool inputIntSsilka(int messCode, int &parametr, int messType) {
 	if (messType == 1) {
 		printMessage(messCode);
@@ -194,13 +200,9 @@ bool inputIntSsilka(int messCode, int &parametr, int messType) {
 	}
 	std::string inputtedInt;
 	std::cin >> inputtedInt;
-	try {
+	if (checkInt(inputtedInt)) {
 		parametr = std::stoi(inputtedInt);
 		return 1;
-	}
-	catch (...) {
-		printErrorMessage(-1);
-		return 0;
 	}
 	return 0;
 }
@@ -212,14 +214,11 @@ std::string inputStr(int messCode, int messType) {
 	if (messType == 1) {
 		printMessage(messCode);
 	}
-	else if (messType == 2) {
-		printViborMessage(messCode);
-	}
 	std::cin >> prompt;
 	if (checkCorrStr(prompt)) {
 		return prompt;
 	}
-	else { return "-"; }
+	return "-";
 }
 
 
@@ -235,41 +234,46 @@ bool inputStrSsilka(int messCode, std::string &stroka, int messType) {
 	if (checkCorrStr(stroka)){
 		return true;
 	}
-	else { stroka = "-"; }
+	stroka = "-";
 	return false;
 }
 
 
+//функция проверки, есть ли такой аккаунт в базе данных (при регистрации). Если есть - возвращаю номер в векторе, иначе -1
+int checkIfInDB(std::string login, std::vector<Account>& vectorAccounts) {
+	std::transform(login.begin(), login.end(), login.begin(), ::tolower); //превращаю логин в ловеркейс
+	for (int i = 0; i < vectorAccounts.size(); i++) {
+		if (vectorAccounts[i].isSimilarLogin(login)) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+
 //функция начала регистрации(ввод данных с клавиатуры и вызов функции добавления в файл)
-std::vector<Account> inputNewAccountData(std::vector<Account>vectorAccounts, bool isAdministrator) {
+void createNewAccount(std::vector<Account>&vectorAccounts, bool isAdministrator) {
 	std::string new_login, new_password;
 	int new_role=0;
-	//if (!isAdministrator) {
-	//	vectorAccounts = getAccounts();
-	//}
 	new_login = inputStr(24,1);
 	std::transform(new_login.begin(), new_login.end(), new_login.begin(), ::tolower);
 	if (new_login == "-") { 
 		printErrorMessage(-1);
-		return vectorAccounts; 
+		return;
 	}
 	else if (checkIfInDB(new_login,vectorAccounts) != -1) {
 		printErrorMessage(4);
-		return vectorAccounts;
-	}
-	else if (new_login.length() > 16) {
-		printErrorMessage(3);
-		return vectorAccounts;
+		return;
 	}
 	new_password = inputStr(25,1);
 	if (new_password == "-") {
-		return vectorAccounts;
+		return;
 	}
 	if (!isAdministrator) {
 		new_role = inputInt(26,1);
-		if (new_role != 1 && new_role != 2) {
+		if (new_role != 1 && new_role != 0) {
 			printErrorMessage(8);
-			return vectorAccounts;
+			return;;
 		}
 	}
 	else {
@@ -278,7 +282,7 @@ std::vector<Account> inputNewAccountData(std::vector<Account>vectorAccounts, boo
 	if (zapisAccount(new_login, new_password, new_role, vectorAccounts, false)) {
 		printMessage(2);
 	}
-	return vectorAccounts;
+	return;
 }
 
 
@@ -330,11 +334,11 @@ std::string vvodParol() {
 }
 
 
-//функция чтения txt файла аккаунтов и сверки логинов и паролей
-int checkLogin(std::string v_login, std::string v_password, std::vector<Account> &vectorAccounts) {
-	int accountIndex = checkIfInDB(v_login, vectorAccounts);
-	if (accountIndex != -1 && vectorAccounts.size()>0) {
-		if (vectorAccounts[accountIndex].isSimilarPass(v_password)) {
+//функция сверки логинов и паролей на присутствие совпадающего с введённым
+int checkLogin(std::string &login, std::string &password, std::vector<Account> &vectorAccounts) {
+	int accountIndex = checkIfInDB(login, vectorAccounts);
+	if (accountIndex != -1) {
+		if (vectorAccounts[accountIndex].isSimilarPass(password)) {
 			return accountIndex;
 		}
 	}
@@ -354,7 +358,7 @@ int loginInAccount(std::vector<Account> &vectorAccounts) {
 	std::cout << std::endl;
 	accountIndex= checkLogin(login, password, vectorAccounts);
 	if (accountIndex!=-1) {
-		//printMessage(16);
+		printMessage(5);
 		return accountIndex;
 	}
 	else {
@@ -389,7 +393,6 @@ bool zapisAccount(std::string login, std::string password, int role,std::vector<
 std::vector<Account> getAccounts() {
 	std::ifstream in;
 	in.open("database.json");
-	std::string login, password, sault;
 	std::vector<Account> vectorAccounts;
 	try {
 		auto j = nlohmann::json::parse(in);
@@ -400,23 +403,18 @@ std::vector<Account> getAccounts() {
 	catch(...){
 		in.close();
 		printErrorMessage(9);
-
-		vectorAccounts = inputNewAccountData(vectorAccounts,true);
+		createNewAccount(vectorAccounts,true);
 		return vectorAccounts;
 	}
 	return vectorAccounts;
 }
 
 
-//проврека, естьли база данных (если нет - создаю, принудительно регистрирую АДМИНИСТРАТОРА)
+//проверка, есть ли база данных (если нет - создаю и принудительно регистрирую АДМИНИСТРАТОРА)
 void isThereBD() {
 	std::ifstream in;
 	in.open("database.json");
 	if (in.is_open()) {
-		int checkIsEmpty;
-		if (!(in >> checkIsEmpty)) {
-			
-		}
 		in.close();
 		return;
 	}
@@ -425,18 +423,6 @@ void isThereBD() {
 		std::ofstream in("database.json");
 		in.close();
 		std::vector<Account> vectorAccounts;
-		inputNewAccountData(vectorAccounts,true);
+		createNewAccount(vectorAccounts,true);
 	}
-}
-
-
-//функция проверки, есть ли такой аккаунт в базе данных (при регистрации). Если есть - возвращаю номер в векторе, иначе -1
-int checkIfInDB(std::string login,std::vector<Account>&vectorAccounts) {
-	std::transform(login.begin(), login.end(), login.begin(), ::tolower); //превращаю логин в ловеркейс
-	for (int i = 0; i < vectorAccounts.size(); i++) {
-		if (vectorAccounts[i].isSimilarLogin(login)) {
-			return i;
-		}
-	}
-	return -1;
 }

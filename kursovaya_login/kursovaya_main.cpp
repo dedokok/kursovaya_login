@@ -10,10 +10,9 @@ int main()
     SetConsoleOutputCP(1251);
     std::locale::global(std::locale(""));
     srand(static_cast<unsigned int>(time(0)));
-    bool isRun = true, isLogin = false;
-    int role = 0, accountIndex = -1;
+    int accountIndex = -1;
     std::vector<Account> vectorAccounts = getAccounts();
-    while (isRun) {
+    while (true) {
         if (accountIndex!=-1) {
             int vibor;
             if (vectorAccounts[accountIndex].getRole()==0) {

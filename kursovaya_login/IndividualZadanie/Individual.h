@@ -5,16 +5,16 @@
 #include <sstream>
 #include <iomanip>
 
-std::vector<Ticket> getTickets();
+std::vector<Flight> getTickets();
 
-bool addNewZapis(std::vector<Ticket>& ticketList);
-bool editZapis(std::vector<Ticket>& ticketList);
-bool deleteZapis(std::vector<Ticket>& ticketList);
-bool zapisTickets(std::vector<Ticket>& ticketList);
-bool buyTicket(std::vector<Ticket> &ticketList);
+bool addNewZapis(std::vector<Flight>& ticketList);
+bool editZapis(std::vector<Flight>& ticketList);
+bool deleteZapis(std::vector<Flight>& ticketList);
+bool zapisTickets(std::vector<Flight>& ticketList);
+bool buyTicket(std::vector<Flight> &ticketList);
 
-void poiskTicket(std::vector<Ticket>& ticketList);
-void sortTicket(std::vector<Ticket> ticketList);
+void poiskTicket(std::vector<Flight>& ticketList);
+void sortTicket(std::vector<Flight> ticketList);
 void printShapkaProsmotr();
-void printTickets(std::vector<Ticket>& ticketList, int startI, int kolvoPrint);
-void printTicketInfo(std::vector<Ticket>& ticketList);
+void printTickets(std::vector<Flight>& ticketList, int startI, int kolvoPrint);
+void printTicketInfo(std::vector<Flight>& ticketList);

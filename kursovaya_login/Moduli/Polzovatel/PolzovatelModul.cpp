@@ -5,9 +5,9 @@
 
 
 
-bool User::startUserMenu() {
+bool User::startUserMenu(){
 	int vibor;
-	std::vector<Ticket> ticketList = getTickets();
+	std::vector<Flight> ticketList = getTickets();
 	while (true) {
 		printShapka(2);
 		vibor = inputInt(12, 2);
@@ -36,11 +36,13 @@ bool User::startUserMenu() {
 			printTicketInfo(ticketList);
 			break;
 		}
+		default: {
+			printErrorMessage(27);
+		}
 		}
 	}
 	return 1;
 }
-
 
 //запуск меню пользователя
 int startPolzovatel() {

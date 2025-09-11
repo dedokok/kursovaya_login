@@ -2,70 +2,61 @@
 #include "ModulAdministrator.h";
 
 
-//функция ввода индекса аккаунта
-int inputAccIndex() {
-	int indexAccount;
-	indexAccount = inputInt(28, 1);
-	return indexAccount;
-}
-
 //функция получения и отправки нового пароля
-void getSendNewPassword(std::vector<Account>& vectorAccounts, int indexAccount) {
-	std::string new_data=inputStr(25, 1); 
-	if (new_data == "-") {
-		printErrorMessage(-1);
-		return;
+bool getSendNewPassword(std::vector<Account>& vectorAccounts, int indexAccount) {
+	std::string new_data = inputStr(25, 1);
+	if (new_data != "-") {
+		vectorAccounts[indexAccount].setParam(new_data, 2);
+		return 1;
 	}
-	vectorAccounts[indexAccount].setParam(new_data, 2);
-	return;
+	printErrorMessage(-1);
+	return 0;
 }
 
 
 //функция получения и отправки нового логина
-void getSendNewLogin(std::vector<Account>& vectorAccounts, int indexAccount) {
-	std::string new_data=inputStr(24, 1);
+bool getSendNewLogin(std::vector<Account>& vectorAccounts, int indexAccount) {
+	std::string new_data = inputStr(24, 1);
 	if (new_data == "-") {
-		return;
+		return 0;
 	}
 	std::transform(new_data.begin(), new_data.end(), new_data.begin(), ::tolower);
 	if (checkIfInDB(new_data, vectorAccounts) == -1) {
-		if (new_data.length() > 16) {
-			printErrorMessage(3);
-			return;
-		}
 		vectorAccounts[indexAccount].setParam(new_data, 1);
+		return 1;
 	}
 	else {
 		printErrorMessage(4);
-		return;
 	}
+	return 0;
 }
 
 
 //функция получения и отправки новой роли
-void getSendNewRole(std::vector<Account>& vectorAccounts, int indexAccount) {
+bool getSendNewRole(std::vector<Account>& vectorAccounts, int indexAccount) {
 	int new_role = inputInt(26, 1);
 	vectorAccounts[indexAccount].setParam(new_role, 1);
+	return 1;
 }
 
 
 //функция получения и отправки новой соли и пароля(т.к. соль изменилась, а старый пароль не узнать)
-void getSendNewSault(std::vector<Account>& vectorAccounts, int indexAccount) {
+bool getSendNewSault(std::vector<Account>& vectorAccounts, int indexAccount) {
 	std::string new_data = inputStr(25, 1);
 	if (new_data == "-") {
-		return;
+		return 0;
 	}
 	vectorAccounts[indexAccount].setParam(saultGen(), 3);
 	vectorAccounts[indexAccount].setParam(new_data, 2);
+	return 1;
 }
 
 
 //метод вывода информации об аккаунте (полиморфизм)
 void printAccInfo(std::vector<Account>& vectorAccounts) {
-	int accIndex = inputAccIndex();
+	int accIndex = inputInt(28, 1);
 	if (accIndex > 0 && accIndex < vectorAccounts.size()) {
-		Account account = vectorAccounts[accIndex];
-		printSomeInfo(account);
+		printSomeInfo(vectorAccounts[accIndex]);
 	}
 	else {
 		printErrorMessage(2);
@@ -73,33 +64,43 @@ void printAccInfo(std::vector<Account>& vectorAccounts) {
 }
 
 
-
-
 //функция вызова функции изменения учётной записи
-void changeAccount(std::vector<Account>& vectorAccounts, int indexAccount) {
-	if (indexAccount == -1) { return; }
+void changeAccount(std::vector<Account>& vectorAccounts,int indexAdmAccount, int indexChangeAccount) {
+	if (indexChangeAccount == -1 || indexChangeAccount >= vectorAccounts.size()) {
+		printErrorMessage(26);
+		return; 
+	}
 	int vibor = inputInt(6,2);
 	if (vibor == -1 || vibor == 0) { return; }
 	std::string new_data;
-	switch (vibor) {//цель кейса
+	bool succesChange = false;
+	switch (vibor) {//цель кейсаdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 	case 1: {
-		getSendNewPassword(vectorAccounts, indexAccount);
+		succesChange = getSendNewPassword(vectorAccounts, indexChangeAccount);
 		break;
 	}
 	case 2: {
-		getSendNewLogin(vectorAccounts, indexAccount);
+		succesChange = getSendNewLogin(vectorAccounts, indexChangeAccount);
 		break;
 	}
 	case 3: {
-		getSendNewRole(vectorAccounts, indexAccount);
+		if (indexChangeAccount != indexAdmAccount) {
+			succesChange = getSendNewRole(vectorAccounts, indexChangeAccount);
+		}
+		else {
+			printErrorMessage(25);
+		}
 		break;
 	}
 	case 4: {
-		getSendNewSault(vectorAccounts, indexAccount);
+		succesChange = getSendNewSault(vectorAccounts, indexChangeAccount);
 		break;
 	}
+	default: {
+		printErrorMessage(27);
 	}
-	if (zapisAccount("-", "-", -1, vectorAccounts, true) && vibor > 0 && vibor < 5) {
+	}
+	if (zapisAccount("-", "-", -1, vectorAccounts, true) && succesChange) {
 		printMessage(3);
 	}
 }
@@ -111,15 +112,14 @@ bool getAccept() {
 	accept = inputStr(27,1);
 	if (accept == "Y") { return 1; }
 	else if (accept == "n") { printMessage(29); return 0; }
-	else { printErrorMessage(-1); return 0; }
+	else { printErrorMessage(27); return 0; }
 }
 
 
-
-
 //функция удаления учётной записи
-void deleteAccount(std::vector<Account> &vectorAccounts,int indexDeleteAccount, int indexNowAccount){
-	if (indexDeleteAccount > -1 && indexDeleteAccount < vectorAccounts.size() && indexDeleteAccount != indexNowAccount) {
+void deleteAccount(std::vector<Account> &vectorAccounts,int indexDeleteAccount, int indexAdmAccount){
+	if (indexDeleteAccount == -1&& indexDeleteAccount >= vectorAccounts.size()) { printErrorMessage(26); return; }
+	if(indexDeleteAccount != indexAdmAccount) {
 		auto begin = vectorAccounts.cbegin();
 		auto end = vectorAccounts.cend();
 		vectorAccounts.erase(begin + indexDeleteAccount);
@@ -127,13 +127,14 @@ void deleteAccount(std::vector<Account> &vectorAccounts,int indexDeleteAccount, 
 			printMessage(1);
 		}
 	}
+	else { printErrorMessage(25); return; }
 }
 
 
 //режим работы с аккаунтами
-void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) {
-	bool isRunUchZap = true;
-	while (isRunUchZap) {
+void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int indexAdmAccount) {
+	while (true) {
+		printShapka(15);
 		int vibor;
 		vibor = inputInt(7,2);
 		switch (vibor) {
@@ -148,23 +149,27 @@ void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) 
 		case 2:
 		{
 			printShapka(12);
-			vectorAccounts = inputNewAccountData(vectorAccounts,false);
+			createNewAccount(vectorAccounts,false);
 			break;
 		}
 		case 3:
 		{
 			printShapka(6);
-			changeAccount(vectorAccounts, inputAccIndex());
+			changeAccount(vectorAccounts,indexAdmAccount, inputInt(28, 1));
 			break;
 		}
 		case 4:
 		{
 			printShapka(7);
-			deleteAccount(vectorAccounts,inputAccIndex(), accountIndex);
+			deleteAccount(vectorAccounts, inputInt(28, 1), indexAdmAccount);
+			break;
 		}
 		case 5: {
 			printAccInfo(vectorAccounts);
 			break;
+		}
+		default: {
+			printErrorMessage(27);
 		}
 		}
 	}
@@ -174,34 +179,34 @@ void rabotaWithAccounts(std::vector<Account>& vectorAccounts, int accountIndex) 
 //режим обработки данных
 void processMode() {
 	int vibor;
-	
-	std::vector<Ticket> ticketList = getTickets();
-	bool isRunPM = true;
-	while (isRunPM) {
+	std::vector<Flight> flightList = getTickets();
+	while (true) {
 		printShapka(14);
 		vibor = inputInt(8,2);
 		switch (vibor) {
 		case 0: return;
 		case 1: {
-			printShapka(5);
-			if (buyTicket(ticketList)) {
-				zapisTickets(ticketList);
+			if (buyTicket(flightList)) {
+				zapisTickets(flightList);
 			}
 			break;
 		}
 		case 2: {
 			printShapka(4);
-			poiskTicket(ticketList);
+			poiskTicket(flightList);
 			break;
 		}
 		case 3: {
 			printShapka(3);
-			sortTicket(ticketList);
+			sortTicket(flightList);
 			break;
 		}
 		case 4: {
-			printTicketInfo(ticketList);
+			printTicketInfo(flightList);
 			break;
+		}
+		default: {
+			printErrorMessage(27);
 		}
 		}
 	}
@@ -211,9 +216,9 @@ void processMode() {
 //основная функция режима редактирования в "Работа с данными"
 void editMode() {
 	int vibor;
-	std::vector<Ticket> ticketList = getTickets();
+	std::vector<Flight> ticketList = getTickets();
 	while (true) {
-		printShapka(10);
+		printShapka(13);
 		vibor = inputInt(9,2);
 		switch (vibor) {
 		case 0: return;
@@ -229,13 +234,16 @@ void editMode() {
 		}
 		case 3: {
 			printShapka(10);
-			if(editZapis(ticketList))printMessage(3);
+			if (editZapis(ticketList)) printMessage(3);
 			break;
 		}
 		case 4: {
 			printShapka(8);
-			if (deleteZapis(ticketList))printMessage(1);
+			if (deleteZapis(ticketList)) printMessage(1);
 			break;
+		}
+		default: {
+			printErrorMessage(27);
 		}
 		}
 	}
@@ -244,11 +252,11 @@ void editMode() {
 
 //функция выбора режима
 void chooseMode() {
-	int viborMode = 0;
+	int vibor;
 	while (true) {
 		printShapka(16);
-		viborMode = inputInt(10,2);
-		switch (viborMode) {
+		vibor = inputInt(10,2);
+		switch (vibor) {
 		case 0: return;
 		case 1: {
 			editMode();
@@ -258,30 +266,33 @@ void chooseMode() {
 			processMode();
 			break;
 		}
+		default: {
+			printErrorMessage(27);
+		}
 		}
 	}
 }
 
 
-
-
 //реализую метод startAdminMenu
 bool Administrator::startAdminMenu(std::vector<Account>&vectorAccounts, int accountIndex) {
 	int vibor;
-	printShapka(1);
 	while (true) {
+		printShapka(1);
 		vibor = inputInt(11, 2);
 		switch (vibor) {
 		case 0:return 1;
 		case 1:
 		{
-			printShapka(15);
 			rabotaWithAccounts(vectorAccounts, accountIndex);
 			break;
 		}
 		case 2: {
 			chooseMode();
 			break;
+		}
+		default: {
+			printErrorMessage(27);
 		}
 		}
 	}

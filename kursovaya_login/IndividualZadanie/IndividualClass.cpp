@@ -8,7 +8,7 @@
 
 
 
-class Ticket {
+class Flight {
 private:
 	int raceNumber;
 	std::string samoletType;
@@ -22,31 +22,35 @@ private:
 	int kolvoTicketEkonom;
 	int stoimostEkonom;
 public:
-	Ticket() : raceNumber(0), samoletType(""), punktNaznacheniya(""), dateVilet(""), vremyaVilet(""),
+	Flight() : raceNumber(0), samoletType(""), punktNaznacheniya(""), dateVilet(""), vremyaVilet(""),
 		vremyaPrilet(""), vmestimost(0), kolvoTicketBiznes(0), stoimostBiznes(0), kolvoTicketEkonom(0),
 		stoimostEkonom(0) {};
 
-	~Ticket() {};
+	~Flight() {};
+
 
 	//метод вывода информации о тикете (полиморфизм)
 	void printSomeInfo() {
 		std::cout << "Это билет в " << punktNaznacheniya << ", отправка будет " << dateVilet << " в " << vremyaVilet << std::endl;
 	}
 
-	//метод проверки правильности введённого рейса
-	bool isCorrectRaceOption(int optionIndex) {
+
+	//метод проверки правильности введённого поля рейса
+	bool isCorrectFlight(int optionIndex) {
 		switch (optionIndex) {
-		case 1: { if (raceNumber >= 0 && raceNumber <= 999)return 1; }
-		case 7: { if (vmestimost >= 0 && vmestimost <= 999)return 1; }
-		case 8: { if (kolvoTicketBiznes >= 0 && kolvoTicketBiznes <= 999)return 1; }
-		case 9: { if (kolvoTicketEkonom >= 0 && kolvoTicketEkonom <= 999)return 1; }
-		case 10: { if (stoimostBiznes >= 0 && stoimostBiznes <= 9999)return 1; }
-		case 11: { if (stoimostEkonom >= 0 && stoimostEkonom <= 9999)return 1; }
+		case 1: { if (raceNumber < 0 || raceNumber > 999) { return 0; }; break; } break;
+		case 7: { if (vmestimost < 0 || vmestimost > 999)return 0; } break;
+		case 8: { if (kolvoTicketBiznes < 0 || kolvoTicketBiznes > 999)return 0; } break;
+		case 9: { if (stoimostBiznes < 0 || stoimostBiznes > 9999)return 0; }break;
+		case 10: { if (kolvoTicketEkonom < 0 || kolvoTicketEkonom > 999)return 0; } break;
+		case 11: { if (stoimostEkonom < 0 || stoimostEkonom > 9999)return 0; } break;
+		default: return 0;
 		}
-		return 0;
+		return 1;
 	}
 
-	//метод изменения строковых параметров по индексу
+
+	//метод изменения строковых параметров по индексу + снизу перегрузка
 	void setParam(std::string strParam, int indexParam) {
 		switch (indexParam) {
 		case 1: { samoletType = strParam; break; }
@@ -57,6 +61,8 @@ public:
 
 		}
 	}
+
+
 	//метод изменения числовых параметров по индексу + перегрузка
 	void setParam(int intParam, int indexParam) {
 		switch (indexParam) {
@@ -70,7 +76,8 @@ public:
 	}
 
 
-	void printTicket() {
+	//вывод всех строк рейса для таблицы
+	void printFlight() {
 		std::cout <<
 			"| " << std::setw(3) << raceNumber <<
 			" | " << std::left << std::setw(15) << samoletType <<
@@ -89,29 +96,23 @@ public:
 
 
 
-	//метод проверки, совпадает ли ведённый рейс с рейсом записи
-	bool isSimilarRace(int v_raceNumber) {
+	//метод проверки, совпадает ли ведённый номер рейса с номером рейсом записи
+	bool isSimilarRaceNumber(int v_raceNumber) {
 		if (v_raceNumber == raceNumber) {
 			return true;
 		}
 		return false;
 	}
 
-	//метод проверки, есть ли введённый тип самолёта в записи
-	bool isSimilarSamoletType(std::string v_samoletType) {
-		if (samoletType.find(v_samoletType) != -1) {
-			return 1;
+	//функция проверки, есть ли введённае строка в строковом поле
+	bool isSimilarPole(int poleIndex, std::string whatFind) {
+		switch (poleIndex) {
+		case 1: if (samoletType.find(whatFind) != -1) { return 1; } break;
+		case 2: if (punktNaznacheniya.find(whatFind) != -1) { return 1; } break;
 		}
 		return 0;
 	}
 
-	//метод проверки, есть ли введённый пункт назначения в записи
-	bool isSimilaPunktNaznach(std::string v_punktNaznach) {
-		if (punktNaznacheniya.find(v_punktNaznach) != -1) {
-			return 1;
-		}
-		return 0;
-	}
 
 	//метод сравнения указанной цены с ценой в записи, sravnenie == 1 - больше, == 2 - меньше
 	int sravnenieCen(int sravnenie, int summa, int typeClass) {
@@ -128,7 +129,8 @@ public:
 		}
 		else if (sravnenie == 2) {
 			if (typeClass == 1) {
-				return summa < stoimostBiznes;
+				bool st = summa < stoimostBiznes;
+				return st;
 			}
 			else if(typeClass==2){
 				return summa < stoimostEkonom;
@@ -140,9 +142,8 @@ public:
 		return -1;
 	}
 
-	//СОРТИРОВКА
-	//СОРТИРОВКА
-	//геттер для сортировки
+
+	//геттеры
 	int getIntSortParam(int paramIndex) {
 		switch (paramIndex) {
 		case 1: { return stoimostBiznes; }//получение стоимости бизнес класса
@@ -170,8 +171,16 @@ public:
 				return 1;
 			}
 		}
-		else{
+		else if (whatVremya==2){
 			if (ss2.fail()) {
+				return 0;
+			}
+			else {
+				return 1;
+			}
+		}
+		else {
+			if (ss2.fail() || ss1.fail()) {
 				return 0;
 			}
 			else {
@@ -180,6 +189,7 @@ public:
 		}
 
 	}
+
 
 	//метод проверки формата даты
 	bool isTrueFormatDate() {
@@ -192,7 +202,8 @@ public:
 
 	}
 
-	//метод покупки билетов
+
+	//метод покупки билетов (уменьшение их количества)
 	bool buyTickets(int kolvoTickets, int classType) {
 		switch (classType) {
 		case 1: { kolvoTicketBiznes -= kolvoTickets; return 1; }
@@ -207,11 +218,12 @@ public:
 		if (classType==1 && kolvoTicketBiznes >= kolvoTicket) {
 			return 1;
 		}
-		else if (classType==0 && kolvoTicketEkonom >= kolvoTicket){
+		else if (classType==2 && kolvoTicketEkonom >= kolvoTicket){
 			return 1;
 		}
 		return 0;
 	}
+
 
 	//метод получения количества билетов
 	int getKolvoTickets(int classType) {
@@ -220,7 +232,7 @@ public:
 		else { return -1; }
 	}
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Ticket, raceNumber, samoletType, punktNaznacheniya, dateVilet, vremyaVilet,
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Flight, raceNumber, samoletType, punktNaznacheniya, dateVilet, vremyaVilet,
 		vremyaPrilet, vmestimost, kolvoTicketBiznes, stoimostBiznes, kolvoTicketEkonom,
 		stoimostEkonom); //чтобы можно было преобразовать json строки в объекты типа класса
 };

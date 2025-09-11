@@ -140,9 +140,6 @@
     <ClCompile Include="Moduli\Polzovatel\PolzovatelModul.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="database.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Funkcii\Funkcii.h" />
     <ClInclude Include="Funkcii\sha256.h" />
     <ClInclude Include="IndividualZadanie\Individual.h" />
